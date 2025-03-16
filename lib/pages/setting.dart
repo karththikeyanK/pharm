@@ -68,7 +68,7 @@ class SettingsScreen extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 // Navigate to Add Stock Screen
-                context.go('/add_stock');
+                context.go(ADD_STOCK);
               },
               child: const Text('Add Stock'),
             ),
@@ -78,7 +78,7 @@ class SettingsScreen extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 // Navigate to View Stock Screen
-                context.go('/view_stock');
+                context.go(VIEW_STOCK);
               },
               child: const Text('View Stock'),
             ),

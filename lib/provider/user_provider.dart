@@ -1,32 +1,88 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:pharm/db/model/user.dart';
-import 'package:pharm/db/repo/user_repo.dart';
+import 'package:pharm/db/user_helper.dart';
 
-final userRepositoryProvider = Provider<UserRepository>((ref) => UserRepository());
+import '../db/db_helper.dart';
+import '../db/model/user.dart';
 
 final userProvider = StateNotifierProvider<UserNotifier, List<User>>((ref) {
-  final userRepository = ref.watch(userRepositoryProvider);
-  return UserNotifier(userRepository);
+  return UserNotifier();
 });
 
 class UserNotifier extends StateNotifier<List<User>> {
-  final UserRepository userRepository;
-
-  UserNotifier(this.userRepository) : super([]);
-
-  Future<void> addUser(User user) async {
-    await userRepository.addUser(user);
-    state = [...state, user]; // Update state with the new user
+  UserNotifier() : super([]) {
+    fetchUsers();
   }
 
-  Future<void> loadUsers() async {
-    final users = await userRepository.getAllUsers();
+  Future<void> fetchUsers() async {
+    final users = await UserHelper.instance.getAllUsers();
     state = users;
   }
 
+  Future<void> addUser(User user) async {
+    await UserHelper.instance.insertUser(user);
+    fetchUsers();
+  }
+
+  Future<void> updateUser(BuildContext context ,User user) async {
+    // Check if the username already exists
+    final existingUser = await UserHelper.instance.getUserByUsername(user.username);
+
+    if (existingUser != null && existingUser.id != user.id) {
+      // If the username exists and the user is not the same user being updated
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Username already exists!'),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(20.0),
+        ),
+      );
+      return; // Exit the method without updating
+    }
+
+    // Check if username or password is empty or if the password length is less than 4 characters
+    if (user.username.isEmpty || user.password.isEmpty || user.password.length < 4) {
+      // Show alert if validation fails
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Invalid Input'),
+            content: const Text('Username and password cannot be empty and password must be at least 4 characters long.'),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+      return; // Exit the method without updating
+    }
+
+    // Proceed with the update if all checks pass
+    await UserHelper.instance.updateUser(user);
+    fetchUsers();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Update successful!'),
+        backgroundColor: Colors.green,
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.all(20.0),
+      ),
+    );
+
+    Navigator.pop(context);
+  }
+
+
   Future<void> deleteUser(int id) async {
-    await userRepository.deleteUser(id);
-    // ignore: unrelated_type_equality_checks
-    state = state.where((user) => user.id != id).toList();
+    await UserHelper.instance.deleteUser(id);
+    fetchUsers();
   }
 }

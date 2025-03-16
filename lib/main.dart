@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pharm/provider/router_provider.dart';
-// ignore: depend_on_referenced_packages
-import 'package:flutter_web_plugins/flutter_web_plugins.dart'; 
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() {
-  setUrlStrategy(PathUrlStrategy());
+  sqfliteFfiInit();
+  databaseFactory = databaseFactoryFfi;
   runApp(const ProviderScope(child: MyApp()));
 }
 
@@ -20,10 +20,10 @@ class MyApp extends ConsumerWidget {
       DeviceOrientation.portraitDown,
     ]);
 
-    precacheImage(const AssetImage('assets/logo.png'), context);
+    // precacheImage(const AssetImage('assets/logo.png'), context);
 
     return MaterialApp.router(
-      title: 'NA9EX',
+      title: 'Pharm',
       theme: ThemeData(primarySwatch: Colors.blue),
       routerConfig: ref.watch(routerProvider),
     );

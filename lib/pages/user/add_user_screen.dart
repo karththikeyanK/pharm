@@ -1,101 +1,146 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:pharm/db/model/user.dart';
-import 'package:pharm/provider/user_provider.dart';
-import 'package:quickalert/quickalert.dart';
-class AddUserScreen extends ConsumerStatefulWidget {
-  const AddUserScreen({super.key});
+import 'package:go_router/go_router.dart';
+import 'package:pharm/provider/router_provider.dart';
+
+import '../../db/model/user.dart';
+import '../../provider/user_provider.dart';
+
+class AddUserPage extends ConsumerStatefulWidget {
+  const AddUserPage({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
-  _AddUserScreenState createState() => _AddUserScreenState();
+  _AddUserPageState createState() => _AddUserPageState();
 }
 
-class _AddUserScreenState extends ConsumerState<AddUserScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-
-  void _saveUser() async {
-    if (_formKey.currentState!.validate()) {
-      final user = User(
-        name: _nameController.text,
-        username: _usernameController.text,
-        password: _passwordController.text,
-      );
-
-      await ref.read(userProvider.notifier).addUser(user);
-
-      QuickAlert.show(
-        // ignore: use_build_context_synchronously
-        context: context,
-        type: QuickAlertType.success,
-        text: 'User added successfully!',
-      );
-
-      _nameController.clear();
-      _usernameController.clear();
-      _passwordController.clear();
-
-      
-    }
-  }
+class _AddUserPageState extends ConsumerState<AddUserPage> {
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  String? selectedRole = 'ADMIN'; // Default role selection
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[200], // Background color for the screen
       body: Center(
         child: Container(
           padding: const EdgeInsets.all(16.0),
-          width: 350,
+          height: 450, // Adjust the height as needed
+          width: 350, // Adjust the width to make it smaller
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(12),
             boxShadow: [
-              BoxShadow(color: Colors.black12, blurRadius: 5, spreadRadius: 2)
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.3),
+                spreadRadius: 3,
+                blurRadius: 5,
+                offset: const Offset(0, 3),
+              ),
             ],
           ),
           child: Form(
             key: _formKey,
             child: Column(
-              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(height: 20),
                 const Text(
                   'Add User',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 20),
                 TextFormField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(labelText: 'Name'),
-                  validator: (value) => value!.isEmpty ? 'Enter name' : null,
+                  controller: nameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Name',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Enter your name';
+                    }
+                    return null;
+                  },
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 16),
                 TextFormField(
-                  controller: _usernameController,
-                  decoration: const InputDecoration(labelText: 'UserName'),
-                  validator: (value) => value!.isEmpty ? 'Enter User Name' : null,
+                  controller: usernameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Username',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Enter a username';
+                    }
+                    return null;
+                  },
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 16),
                 TextFormField(
-                  controller: _passwordController,
+                  controller: passwordController,
                   obscureText: true,
-                  decoration: const InputDecoration(labelText: 'Password'),
-                  validator: (value) => value!.isEmpty ? 'Enter password' : null,
+                  decoration: const InputDecoration(
+                    labelText: 'Password',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Enter a password';
+                    }
+                    return null;
+                  },
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<String>(
+                  value: selectedRole,
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedRole = newValue;
+                    });
+                  },
+                  items: const [
+                    DropdownMenuItem(value: 'ADMIN', child: Text('Admin')),
+                    DropdownMenuItem(value: 'CASHIER', child: Text('Cashier')),
+                  ],
+                  decoration: const InputDecoration(
+                    labelText: 'Role',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Select a role';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 40),
                 SizedBox(
                   width: double.infinity,
-                  height: 50,
                   child: ElevatedButton(
-                    onPressed: _saveUser,
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        final user = User(
+                          name: nameController.text,
+                          username: usernameController.text,
+                          password: passwordController.text,
+                          role: selectedRole!,
+                        );
+                        ref.read(userProvider.notifier).addUser(user);
+                        GoRouter.of(context).go(ADMIN_SETTINGS);
+                      }
+                    },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
+                      backgroundColor: Colors.blue, // Blue button color
+                      padding: const EdgeInsets.symmetric(vertical: 20),
                       foregroundColor: Colors.white,
                     ),
-                    child: const Text('Add User', style: TextStyle(fontSize: 16)),
+                    child: const Text('Add User'),
                   ),
                 ),
               ],

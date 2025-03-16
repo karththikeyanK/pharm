@@ -19,13 +19,16 @@ class LoginScreenState extends State<LoginScreen> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Logging in...')));
-      if (usernameController.text == '123' && passwordController.text == '123') {
+      if (usernameController.text == '1010' && passwordController.text == '1234') {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Login successful!'),
+          SnackBar(
+            content: const Text('Login successful!'),
             backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.all(20.0), // This sets the margin, you can adjust the value as needed
           ),
         );
+
         GoRouter.of(context).go(ADMIN_SETTINGS);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
