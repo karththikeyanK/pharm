@@ -58,7 +58,7 @@ class SettingsScreen extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 // Navigate to View Billings Screen
-                context.go('/view_billings');
+                context.go(BILLING_PAGE);
               },
               child: const Text('View Billings'),
             ),
