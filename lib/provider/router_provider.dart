@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pharm/pages/bill/billing_page.dart';
 import 'package:pharm/pages/login_screen.dart';
 import 'package:pharm/pages/setting.dart';
 import 'package:pharm/pages/stock/add_stock.dart';
@@ -21,6 +22,8 @@ final ADMIN_SETTINGS = '/admin-settings';
 final ADD_STOCK = '/add-stock';
 // ignore: non_constant_identifier_names
 final VIEW_STOCK = '/view-stock';
+
+final BILLING_PAGE = '/billing-page';
 
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -60,6 +63,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: VIEW_STOCK,
         builder: (context, state) => const ListStockPage(),
+      ),
+      GoRoute(
+        path: BILLING_PAGE,
+        builder: (context, state) =>  BillingPage(),
       ),
     ],
   );
