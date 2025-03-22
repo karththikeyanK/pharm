@@ -23,6 +23,16 @@ class _AddUserPageState extends ConsumerState<AddUserPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Add User', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),),
+        backgroundColor: Colors.blue,
+        leading: IconButton(
+        icon: const Icon(Icons.arrow_back, color: Colors.white),
+        onPressed: () {
+          GoRouter.of(context).go(ADMIN_SETTINGS);
+          },
+        ),
+        ),
       backgroundColor: Colors.grey[200], // Background color for the screen
       body: Center(
         child: Container(

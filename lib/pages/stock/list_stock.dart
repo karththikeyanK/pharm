@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../../provider/router_provider.dart';
 import '../../provider/stock_provider.dart';
 
 class ListStockPage extends ConsumerStatefulWidget {
@@ -12,52 +14,69 @@ class ListStockPage extends ConsumerStatefulWidget {
 class ListStockPageState extends ConsumerState<ListStockPage> {
   @override
   Widget build(BuildContext context) {
-    // Fetching the stock list from the provider
     final stockList = ref.watch(stockProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Stock List'),
+        title: const Text('Stock List', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
+        backgroundColor: Colors.blue,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            GoRouter.of(context).go(ADMIN_SETTINGS);
+          },
+        ),
         actions: [
           IconButton(
-            icon: Icon(Icons.add),
+            icon: const Icon(Icons.add, color: Colors.white),
             onPressed: () {
-              // Navigate to Add Stock page
-              Navigator.pushNamed(context, '/add-stock');
+              GoRouter.of(context).go(ADD_STOCK);
             },
           ),
         ],
       ),
       body: stockList.isEmpty
-          ? Center(
-        child: Text('No stocks available'),
-      )
-          : ListView.builder(
-        itemCount: stockList.length,
-        itemBuilder: (context, index) {
-          final stock = stockList[index];
-          return Card(
-            margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-            child: ListTile(
-              title: Text(stock.name),
-              subtitle: Text('Barcode: ${stock.barcode}\nExpiry: ${stock.expiryDate}'),
-              isThreeLine: true,
-              trailing: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text('Quantity: ${stock.quantity}'),
-                  Text('Cost: \$${stock.unitCost.toStringAsFixed(2)}'),
-                  Text('Selling Price: \$${stock.unitSellPrice.toStringAsFixed(2)}'),
-                ],
-              ),
-              onTap: () {
-                // Navigate to Edit Stock page
-                Navigator.pushNamed(context, '/edit-stock', arguments: stock);
-              },
-            ),
-          );
-        },
+          ? const Center(child: Text('No stocks available'))
+          : SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Padding(
+          padding: EdgeInsets.all(20.0),
+          child: DataTable(
+            border: TableBorder.all(color: Colors.grey),
+            columns: const [
+              DataColumn(label: Text('Name', style: TextStyle(fontWeight: FontWeight.bold))),
+              DataColumn(label: Text('Barcode', style: TextStyle(fontWeight: FontWeight.bold))),
+              DataColumn(label: Text('Expiry Date', style: TextStyle(fontWeight: FontWeight.bold))),
+              DataColumn(label: Text('Quantity', style: TextStyle(fontWeight: FontWeight.bold))),
+              DataColumn(label: Text('Free', style: TextStyle(fontWeight: FontWeight.bold))),
+              DataColumn(label: Text('Unit Cost', style: TextStyle(fontWeight: FontWeight.bold))),
+              DataColumn(label: Text('Total Cost', style: TextStyle(fontWeight: FontWeight.bold))),
+              DataColumn(label: Text('Profit', style: TextStyle(fontWeight: FontWeight.bold))),
+              DataColumn(label: Text('Min Unit Cost', style: TextStyle(fontWeight: FontWeight.bold))),
+              DataColumn(label: Text('Max Unit Cost', style: TextStyle(fontWeight: FontWeight.bold))),
+              DataColumn(label: Text('Min Unit Sell Price', style: TextStyle(fontWeight: FontWeight.bold))),
+              DataColumn(label: Text('Max Unit Sell Price', style: TextStyle(fontWeight: FontWeight.bold))),
+              DataColumn(label: Text('Unit Sell Price', style: TextStyle(fontWeight: FontWeight.bold))),
+            ],
+            rows: stockList.map((stock) {
+              return DataRow(cells: [
+                DataCell(Text(stock.name)),
+                DataCell(Text(stock.barcode)),
+                DataCell(Text(stock.expiryDate)),
+                DataCell(Text(stock.quantity.toString())),
+                DataCell(Text(stock.free.toString())),
+                DataCell(Text('${stock.unitCost.toStringAsFixed(2)}')),
+                DataCell(Text('${stock.totalCost.toStringAsFixed(2)}')),
+                DataCell(Text('${stock.profit.toStringAsFixed(2)}')),
+                DataCell(Text('${stock.minUnitCost.toStringAsFixed(2)}')),
+                DataCell(Text('${stock.maxUnitCost.toStringAsFixed(2)}')),
+                DataCell(Text('${stock.minUnitSellPrice.toStringAsFixed(2)}')),
+                DataCell(Text('${stock.maxUnitSellPrice.toStringAsFixed(2)}')),
+                DataCell(Text('${stock.unitSellPrice.toStringAsFixed(2)}')),
+              ]);
+            }).toList(),
+          ),
+        ),
       ),
     );
   }

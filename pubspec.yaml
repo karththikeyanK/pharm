@@ -46,7 +46,9 @@ dependencies:
   drift: ^2.26.0
   sqlite3_flutter_libs: ^0.5.31
   path_provider: ^2.1.5
+  flutter_searchable_dropdown: ^2.0.0
   sqflite_common_ffi: ^2.3.5
+  dropdown_search: ^6.0.2
 
 dev_dependencies:
   flutter_test:
