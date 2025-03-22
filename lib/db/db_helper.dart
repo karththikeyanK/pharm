@@ -11,8 +11,8 @@ class DatabaseHelper {
 
   DatabaseHelper._init();
 
-  static const int _databaseVersion = 6; // Increment when modifying schema
-
+  static const int _databaseVersion = 6;
+  // ignore: non_constant_identifier_names
   final String CREATE_STOCK = '''
     CREATE TABLE stock (
       id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -33,6 +33,7 @@ class DatabaseHelper {
     )
   ''';
 
+  // ignore: non_constant_identifier_names
   final String CREATE_USER_TABLE = '''
     CREATE TABLE user (
       id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -90,4 +91,6 @@ class DatabaseHelper {
       await db.insert('stock', stock.toMap(), conflictAlgorithm: ConflictAlgorithm.ignore);
     }
   }
+
+ 
 }
