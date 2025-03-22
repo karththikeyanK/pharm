@@ -52,7 +52,8 @@ class ListStockPageState extends ConsumerState<ListStockPage> {
                 ],
               ),
               onTap: () {
-                // Handle item tap (e.g., navigate to detail page or edit)
+                // Navigate to Edit Stock page
+                Navigator.pushNamed(context, '/edit-stock', arguments: stock);
               },
             ),
           );
