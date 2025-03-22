@@ -8,81 +8,94 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Settings',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: GridView.count(
+          crossAxisCount: 3, // Three boxes per row
+          crossAxisSpacing: 16, // Spacing between columns
+          mainAxisSpacing: 16, // Spacing between rows
+          childAspectRatio: 2, // Adjust the height of the boxes
           children: [
-            const SizedBox(height: 20),
-            const Text(
-              'Settings',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+            _buildSettingBox(
+              context,
+              title: 'Add User',
+              route: ADD_USER,
+              icon: Icons.person_add,
             ),
-
-            const SizedBox(height: 20),
-            // Add User Button
-            ElevatedButton(
-              onPressed: () {
-                // Navigate to Add User Screen
-                context.go(ADD_USER);
-              },
-              child: const Text('Add User'),
+            _buildSettingBox(
+              context,
+              title: 'View Users',
+              route: VIEW_USER,
+              icon: Icons.people,
             ),
-            const SizedBox(height: 10),
-
-            // View Users Button
-            ElevatedButton(
-              onPressed: () {
-                // Navigate to View User Screen
-                context.go(VIEW_USER);
-              },
-              child: const Text('View Users'),
+            _buildSettingBox(
+              context,
+              title: 'Get Report',
+              route: '/get_report',
+              icon: Icons.report,
             ),
-            const SizedBox(height: 10),
-
-            // Get Report Button
-            ElevatedButton(
-              onPressed: () {
-                // Navigate to Get Report Screen
-                context.go('/get_report');
-              },
-              child: const Text('Get Report'),
+            _buildSettingBox(
+              context,
+              title: 'View Billings',
+              route: BILLING_PAGE,
+              icon: Icons.receipt,
             ),
-            const SizedBox(height: 10),
-
-            // View Billings Button
-            ElevatedButton(
-              onPressed: () {
-                // Navigate to View Billings Screen
-                context.go(BILLING_PAGE);
-              },
-              child: const Text('View Billings'),
+            _buildSettingBox(
+              context,
+              title: 'Add Stock',
+              route: ADD_STOCK,
+              icon: Icons.add_box,
             ),
-            const SizedBox(height: 10),
-
-            // Add Stock Button
-            ElevatedButton(
-              onPressed: () {
-                // Navigate to Add Stock Screen
-                context.go(ADD_STOCK);
-              },
-              child: const Text('Add Stock'),
-            ),
-            const SizedBox(height: 10),
-
-            // View Stock Button
-            ElevatedButton(
-              onPressed: () {
-                // Navigate to View Stock Screen
-                context.go(VIEW_STOCK);
-              },
-              child: const Text('View Stock'),
+            _buildSettingBox(
+              context,
+              title: 'View Stock',
+              route: VIEW_STOCK,
+              icon: Icons.inventory,
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSettingBox(BuildContext context, {required String title, required String route, required IconData icon}) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () {
+          context.go(route);
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 40, color: Theme.of(context).primaryColor),
+              const SizedBox(height: 10),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

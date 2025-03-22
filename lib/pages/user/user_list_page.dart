@@ -4,6 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../db/model/user.dart';
 import '../../provider/user_provider.dart';
 import 'add_user_screen.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../provider/router_provider.dart';
 
 class UserListPage extends ConsumerWidget {
   @override
@@ -11,7 +14,16 @@ class UserListPage extends ConsumerWidget {
     final users = ref.watch(userProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text('User Management')),
+      appBar: AppBar(
+        title: const Text('Add User', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),),
+        backgroundColor: Colors.blue,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            GoRouter.of(context).go(ADMIN_SETTINGS);
+          },
+        ),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(context, MaterialPageRoute(builder: (_) => AddUserPage()));

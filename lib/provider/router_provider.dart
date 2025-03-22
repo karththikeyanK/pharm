@@ -22,7 +22,7 @@ final ADMIN_SETTINGS = '/admin-settings';
 final ADD_STOCK = '/add-stock';
 // ignore: non_constant_identifier_names
 final VIEW_STOCK = '/view-stock';
-
+// ignore: non_constant_identifier_names
 final BILLING_PAGE = '/billing-page';
 
 

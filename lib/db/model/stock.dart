@@ -71,4 +71,24 @@ class Stock {
     );
   }
 
+  static Stock empty() {
+    return Stock(
+      id: 0,
+      barcode: '',
+      name: '',
+      expiryDate: '',
+      quantity: 0,
+      free: 0,
+      unitCost: 0.0,
+      totalCost: 0.0,
+      profit: 0.0,
+      unitSellPrice: 0.0,
+      minUnitCost: 0.0,
+      maxUnitCost: 0.0,
+      minUnitSellPrice: 0.0,
+      maxUnitSellPrice: 0.0,
+    );
+
+  }
+
 }

@@ -6,29 +6,26 @@ class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  LoginScreenState createState() => LoginScreenState();
+  ClassicLoginScreenState createState() => ClassicLoginScreenState();
 }
 
-class LoginScreenState extends State<LoginScreen> {
-  final TextEditingController usernameController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+class ClassicLoginScreenState extends State<LoginScreen> {
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   void _login() {
     if (_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Logging in...')));
-      if (usernameController.text == '1010' && passwordController.text == '1234') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Logging in...')),
+      );
+      if (_usernameController.text == '1010' && _passwordController.text == '1234') {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text('Login successful!'),
             backgroundColor: Colors.green,
-            behavior: SnackBarBehavior.floating,
-            margin: const EdgeInsets.all(20.0), // This sets the margin, you can adjust the value as needed
           ),
         );
-
         GoRouter.of(context).go(ADMIN_SETTINGS);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -44,88 +41,105 @@ class LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:
-          Colors.grey[200], // Set the background color for the Scaffold
+      backgroundColor: Colors.grey[200],
       body: Center(
-        child: Container(
-          padding: const EdgeInsets.all(16.0),
-          height: 400,
-          width: 350, // Adjust the width to make it smaller
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.3),
-                spreadRadius: 3,
-                blurRadius: 5,
-                offset: const Offset(0, 3),
-              ),
-            ],
-          ),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  'Login',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 40),
-                TextFormField(
-                  controller: usernameController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: 'Username',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Enter your username';
-                    } else if (!RegExp(r'^\d+$').hasMatch(value)) {
-                      return 'Only numbers allowed';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: passwordController,
-                  keyboardType: TextInputType.number,
-                  obscureText: true,
-                  decoration: const InputDecoration(
-                    labelText: 'Password',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Enter your password';
-                    } else if (!RegExp(r'^\d+$').hasMatch(value)) {
-                      return 'Only numbers allowed';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 40),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _login,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue, // Blue button
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 20,
-                      ), // Increase the height
-                      foregroundColor: Colors.white, // White text color
-                    ),
-                    child: const Text('Login'),
-                  ),
+        child: SingleChildScrollView(
+          child: Container(
+            padding: const EdgeInsets.all(24.0),
+            margin: const EdgeInsets.all(16.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8.0),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.3),
+                  spreadRadius: 2,
+                  blurRadius: 5,
+                  offset: const Offset(0, 3),
                 ),
               ],
+            ),
+            width: 400,
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'Welcome Back',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  TextFormField(
+                    controller: _usernameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Username',
+                      prefixIcon: Icon(Icons.person),
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your username';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _passwordController,
+                    obscureText: true,
+                    decoration: const InputDecoration(
+                      labelText: 'Password',
+                      prefixIcon: Icon(Icons.lock),
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your password';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _login,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                      ),
+                      child: const Text(
+                        'Login',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextButton(
+                    onPressed: () {
+                      // show alert dialog like NOw we are not able to reset password
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('We are not able to reset password at the moment'),
+                        ),
+                      );
+
+                    },
+                    child: const Text(
+                      'Forgot Password?',
+                      style: TextStyle(color: Colors.blue),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

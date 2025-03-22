@@ -77,32 +77,89 @@ class AddStockPageState extends ConsumerState<AddStockPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Add Stock')),
+      appBar: AppBar(
+        title: Text('Add Stock', style: TextStyle(fontSize: 24,color: Colors.white, fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.blue,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            GoRouter.of(context).go(ADMIN_SETTINGS);
+          },
+        ),
+      ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
             children: [
-              _buildTextField(barcodeController, 'Barcode'),
-              _buildTextField(nameController, 'Product Name'),
-              _buildDateField(context),
-              _buildNumberField(quantityController, 'Quantity'),
-              _buildNumberField(freeController, 'Free Items'),
-              _buildNumberField(unitCostController, 'Unit Cost'),
-              _buildNumberField(totalCostController, 'Total Cost'),
-              _buildNumberField(profitController, 'Profit'),
-              _buildNumberField(unitSellPriceController, 'Unit Sell Price'),
-              _buildNumberField(minUnitCostController, 'Min Unit Cost'),
-              _buildNumberField(maxUnitCostController, 'Max Unit Cost'),
-              _buildNumberField(minUnitSellPriceController, 'Min Unit Sell Price'),
-              _buildNumberField(maxUnitSellPriceController, 'Max Unit Sell Price'),
+              SizedBox(height: 46),
+              // First Row: Barcode, Product Name, Expiry Date, Quantity
+              Row(
+                children: [
+                  Expanded(child: _buildTextField(barcodeController, 'Barcode')),
+                  SizedBox(width: 16),
+                  Expanded(child: _buildTextField(nameController, 'Product Name')),
+                  SizedBox(width: 16),
+                  Expanded(child: _buildDateField(context)),
+                  SizedBox(width: 16),
+                  Expanded(child: _buildNumberField(quantityController, 'Quantity')),
+                ],
+              ),
+              SizedBox(height: 16),
+
+              // Second Row: Free Items, Unit Cost, Total Cost, Profit
+              Row(
+                children: [
+                  Expanded(child: _buildNumberField(freeController, 'Free Items')),
+                  SizedBox(width: 16),
+                  Expanded(child: _buildNumberField(unitCostController, 'Unit Cost')),
+                  SizedBox(width: 16),
+                  Expanded(child: _buildNumberField(totalCostController, 'Total Cost')),
+                  SizedBox(width: 16),
+                  Expanded(child: _buildNumberField(profitController, 'Profit')),
+                ],
+              ),
+              SizedBox(height: 16),
+
+              // Third Row: Unit Sell Price, Min Unit Cost, Max Unit Cost, Min Unit Sell Price
+              Row(
+                children: [
+                  Expanded(child: _buildNumberField(unitSellPriceController, 'Unit Sell Price')),
+                  SizedBox(width: 16),
+                  Expanded(child: _buildNumberField(minUnitCostController, 'Min Unit Cost')),
+                  SizedBox(width: 16),
+                  Expanded(child: _buildNumberField(maxUnitCostController, 'Max Unit Cost')),
+                  SizedBox(width: 16),
+                  Expanded(child: _buildNumberField(minUnitSellPriceController, 'Min Unit Sell Price')),
+                ],
+              ),
+              SizedBox(height: 16),
+
+              // Fourth Row: Max Unit Sell Price
+              Row(
+                children: [
+                  Expanded(child: _buildNumberField(maxUnitSellPriceController, 'Max Unit Sell Price')),
+                ],
+              ),
               SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () => addStock(context, ref),
-                child: Text('Add Stock'),
-                style: ElevatedButton.styleFrom(
-                  minimumSize: Size(double.infinity, 50),
+// Add Stock Button
+              SizedBox(
+                width: 200, // Set a specific width for the button
+                child: ElevatedButton(
+                  onPressed: () => addStock(context, ref),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                  ),
+                  child: const Text(
+                    'Add Stock',
+                    style: TextStyle(fontSize: 16,color: Colors.white),
+
+                  ),
                 ),
               ),
             ],
@@ -113,44 +170,35 @@ class AddStockPageState extends ConsumerState<AddStockPage> {
   }
 
   Widget _buildTextField(TextEditingController controller, String label) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
-      child: TextFormField(
-        controller: controller,
-        decoration: InputDecoration(labelText: label, border: OutlineInputBorder()),
-        validator: (value) => value!.isEmpty ? 'Required field' : null,
-      ),
+    return TextFormField(
+      controller: controller,
+      decoration: InputDecoration(labelText: label, border: OutlineInputBorder()),
+      // validator: (value) => value!.isEmpty ? 'Required field' : null,
     );
   }
 
   Widget _buildNumberField(TextEditingController controller, String label) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
-      child: TextFormField(
-        controller: controller,
-        keyboardType: TextInputType.number,
-        decoration: InputDecoration(labelText: label, border: OutlineInputBorder()),
-        validator: (value) => (value == null || value.isEmpty) ? 'Required field' : null,
-      ),
+    return TextFormField(
+      controller: controller,
+      keyboardType: TextInputType.number,
+      decoration: InputDecoration(labelText: label, border: OutlineInputBorder()),
+      // validator: (value) => (value == null || value.isEmpty) ? 'Required field' : null,
     );
   }
 
   Widget _buildDateField(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
-      child: TextFormField(
-        controller: expiryDateController,
-        readOnly: true,
-        decoration: InputDecoration(
-          labelText: 'Expiry Date',
-          border: OutlineInputBorder(),
-          suffixIcon: IconButton(
-            icon: Icon(Icons.calendar_today),
-            onPressed: () => _selectExpiryDate(context),
-          ),
+    return TextFormField(
+      controller: expiryDateController,
+      readOnly: true,
+      decoration: InputDecoration(
+        labelText: 'Expiry Date',
+        border: OutlineInputBorder(),
+        suffixIcon: IconButton(
+          icon: Icon(Icons.calendar_today),
+          onPressed: () => _selectExpiryDate(context),
         ),
-        validator: (value) => value!.isEmpty ? 'Select an expiry date' : null,
       ),
+      validator: (value) => value!.isEmpty ? 'Select an expiry date' : null,
     );
   }
 }
