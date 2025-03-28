@@ -40,6 +40,8 @@ class ClassicLoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    _usernameController.text = '1010';
+    _passwordController.text = '1234';
     return Scaffold(
       backgroundColor: Colors.grey[200],
       body: Center(
@@ -118,7 +120,7 @@ class ClassicLoginScreenState extends State<LoginScreen> {
                       ),
                       child: const Text(
                         'Login',
-                        style: TextStyle(fontSize: 16),
+                        style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),

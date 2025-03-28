@@ -32,4 +32,30 @@ class StockHelper {
     final db = await DatabaseHelper.instance.database;
     return await db.delete('stock', where: 'id = ?', whereArgs: [id]);
   }
+
+  Future<Stock>getStockByBarcode(String barcode)async {
+    final db = await DatabaseHelper.instance.database;
+    final List<Map<String, dynamic>> maps = await db.query('stock', where: 'barcode = ?', whereArgs: [barcode]);
+    if (maps.isNotEmpty) {
+      return Stock.fromMap(maps.first);
+    }
+    return Stock.empty();
+  }
+
+  Future<Stock> getStockByName(String name) async {
+    final db = await DatabaseHelper.instance.database;
+
+    String lowercaseName = name.toLowerCase();
+    final List<Map<String, dynamic>> maps = await db.query(
+      'stock',
+      where: 'LOWER(name) = ?',
+      whereArgs: [lowercaseName],
+    );
+
+    if (maps.isNotEmpty) {
+      return Stock.fromMap(maps.first);
+    }
+    return Stock.empty();
+  }
+
 }
