@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_searchable_dropdown/flutter_searchable_dropdown.dart';
+import 'package:pharm/db/dto/stock_and_details.dart';
 
 import '../db/model/stock.dart';
 
@@ -15,7 +16,7 @@ class BillingInputSection extends StatelessWidget {
   final VoidCallback addItem;
 
   const BillingInputSection({
-    Key? key,
+    super.key,
     required this.barcodeController,
     required this.nameController,
     required this.priceController,
@@ -25,7 +26,7 @@ class BillingInputSection extends StatelessWidget {
     required this.barcodeFocusNode,
     required this.stockList,
     required this.addItem,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -49,14 +50,7 @@ class BillingInputSection extends StatelessWidget {
         const SizedBox(width: 10),
 
         // Price Input
-        Expanded(
-          child: _buildInputField(
-            controller: priceController,
-            label: "Price",
-            keyboardType: TextInputType.number,
-          ),
-        ),
-        const SizedBox(width: 10),
+
 
         // Quantity Input
         Expanded(
@@ -128,7 +122,7 @@ class BillingInputSection extends StatelessWidget {
         // Update both controllers when an option is selected
         barcodeController.text = selection.barcode;
         nameController.text = selection.name;
-        priceController.text = selection.unitSellPrice.toStringAsFixed(2);
+        // priceController.text = selection.unitSellPrice.toStringAsFixed(2);
         quantityFocusNode.requestFocus();
       },
       fieldViewBuilder: (
@@ -195,11 +189,10 @@ class BillingInputSection extends StatelessWidget {
     );
 
     if (stockItem.barcode.isNotEmpty) {
-      print("Stock Name: ${stockItem.name}");
       nameFocusNode.requestFocus();
       // barcodeController.text = "${stockItem.name}-${stockItem.barcode}";
       nameController.text = stockItem.name;
-      priceController.text = stockItem.unitSellPrice.toStringAsFixed(2);
+      // priceController.text = stockItem.unitSellPrice.toStringAsFixed(2);
       quantityFocusNode.requestFocus();
     }
   }

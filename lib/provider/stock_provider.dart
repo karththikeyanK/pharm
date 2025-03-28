@@ -20,14 +20,17 @@ class StockNotifier extends StateNotifier<List<Stock>> {
     }
   }
 
-  Future<void> addStock(Stock stock) async {
+  Future<bool> addStock(Stock stock) async {
     try {
       await StockHelper.instance.insertStock(stock);
-      loadStocks(); // Refresh state
+      await loadStocks();
+      return true; // Success
     } catch (e) {
       print("Error adding stock: $e");
+      return false; // Failure
     }
   }
+
 
   Future<void> updateStock(Stock stock) async {
     try {
@@ -46,4 +49,28 @@ class StockNotifier extends StateNotifier<List<Stock>> {
       print("Error deleting stock: $e");
     }
   }
+
+  Future<Stock?> getStockByName(String name) async {
+    try {
+      final dbStock = await StockHelper.instance.getStockByName(name);
+      return dbStock; // Return the stock directly
+    } catch (e) {
+      print("Error loading stock by name: $e");
+      return null; // Return null if there's an error
+    }
+  }
+
+
+  Future<Stock?> getStockByBarcode(String barcode) async {
+    try {
+      final dbStock = await StockHelper.instance.getStockByBarcode(barcode);
+      return dbStock; // Return the stock directly
+    } catch (e) {
+      print("Error loading stock by barcode: $e");
+      return null; // Return null if there's an error
+    }
+  }
+
+
+
 }
