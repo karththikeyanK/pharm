@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../db/model/stock.dart';
 import '../db/stock_helper.dart'; // Import stock database helper
@@ -16,7 +18,7 @@ class StockNotifier extends StateNotifier<List<Stock>> {
       final dbStocks = await StockHelper.instance.getAllStocks();
       state = dbStocks;
     } catch (e) {
-      print("Error loading stocks: $e");
+      log("Error loading stocks: $e");
     }
   }
 
@@ -26,7 +28,7 @@ class StockNotifier extends StateNotifier<List<Stock>> {
       await loadStocks();
       return true; // Success
     } catch (e) {
-      print("Error adding stock: $e");
+      log("Error adding stock: $e");
       return false; // Failure
     }
   }
@@ -37,7 +39,7 @@ class StockNotifier extends StateNotifier<List<Stock>> {
       await StockHelper.instance.updateStock(stock);
       await loadStocks();
     } catch (e) {
-      print("Error updating stock: $e");
+      log("Error updating stock: $e");
     }
   }
 

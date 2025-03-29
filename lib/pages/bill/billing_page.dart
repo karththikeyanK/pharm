@@ -1,7 +1,14 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pharm/constant/appconstant.dart';
+import 'package:pharm/db/model/bill.dart';
+import 'package:pharm/db/model/bill_item.dart';
+import 'package:pharm/provider/bill_item_provide.dart';
 import '../../db/model/stock.dart';
+import '../../provider/bill_provider.dart';
 import '../../provider/router_provider.dart';
 import '../../provider/stock_detail_provider.dart';
 import '../../provider/stock_provider.dart';
@@ -80,6 +87,7 @@ class BillingPageState extends ConsumerState<BillingPage> {
         amount = addedQty * stockDetail.unitSellPrice;
         setState(() {
           items.add({
+          "stockId": stock.id,
           "barcode": stock.barcode,
           "name": stock.name,
           "quantity": addedQty,
@@ -318,14 +326,7 @@ void initState() {
                 if (balance < 0) {
                   showErrorSnackBar("Customer amount is less than total amount");
                 } else {
-                  showAlertDialog(
-                    "Success",
-                    "Transaction completed successfully",
-                    () {
-                      context.pop();
-                      context.pop();
-                    },
-                  );
+                  addBill();
                 }
               },
               style: ElevatedButton.styleFrom(
@@ -366,4 +367,53 @@ void initState() {
       onSubmitted: onSubmitted,
     );
   }
+
+  Future<void> addBill() async {
+    log("User ID: ${AppsConstant.userId}");
+    Bill bill = Bill(
+      id: null,
+      userId: AppsConstant.userId,
+      total: getTotalAmount(),
+      totalDiscount: 0.0,
+      createAt: DateTime.now().toString(),
+    );
+
+    int r = await ref.read(billProvider.notifier).addBill(bill);
+    if (r < 1 ) {
+      showErrorSnackBar("Error adding bill");
+      return;
+    }else{
+      List<BillItem> billItems = items.map((item) {
+        return BillItem(
+          id: 0,
+          billId: r,
+          stockId: item["stockId"],
+          quantity: item["quantity"],
+          unitSellPrice: item["unitSellPrice"],
+          discount: item["discount"],
+          totalCost: item["amount"],
+        );
+      }).toList();
+
+      for (BillItem billItem in billItems) {
+        ref.read(billItemProvider.notifier).addBillItem(billItem);
+      }
+
+      setState(() {
+        items.clear();
+        customerAmountController.clear();
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Bill added successfully"),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }
+    }
+
+
+
+
 }

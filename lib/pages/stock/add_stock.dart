@@ -132,21 +132,6 @@ class _AddStockPageState extends ConsumerState<AddStockPage> {
       name: nameController.text.trim(),
     );
 
-    StockDetails stockDetails = StockDetails(
-      expiryDate: expiryDateController.text.trim(),
-      quantity: int.tryParse(quantityController.text) ?? 0,
-      free: int.tryParse(freeController.text) ?? 0,
-      unitCost: double.tryParse(unitCostController.text) ?? 0.0,
-      totalCost: double.tryParse(totalCostController.text) ?? 0.0,
-      profit: double.tryParse(profitController.text) ?? 0.0,
-      minUnitCost: double.tryParse(minUnitCostController.text) ?? 0.0,
-      maxUnitCost: double.tryParse(maxUnitCostController.text) ?? 0.0,
-      minUnitSellPrice: double.tryParse(minUnitSellPriceController.text) ?? 0.0,
-      maxUnitSellPrice: double.tryParse(maxUnitSellPriceController.text) ?? 0.0,
-      unitSellPrice: double.tryParse(unitSellPriceController.text) ?? 0.0,
-      id: null,
-      stockId: null,
-    );
 
     bool success = await ref.read(stockProvider.notifier).addStock(stock);
 
@@ -171,6 +156,7 @@ class _AddStockPageState extends ConsumerState<AddStockPage> {
     StockDetails stockDetails = StockDetails(
       expiryDate: expiryDateController.text.trim(),
       quantity: int.tryParse(quantityController.text) ?? 0,
+      loadqty: int.tryParse(quantityController.text) ?? 0,
       free: int.tryParse(freeController.text) ?? 0,
       unitCost: double.tryParse(unitCostController.text) ?? 0.0,
       totalCost: double.tryParse(totalCostController.text) ?? 0.0,

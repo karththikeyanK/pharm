@@ -85,4 +85,9 @@ class UserNotifier extends StateNotifier<List<User>> {
     await UserHelper.instance.deleteUser(id);
     fetchUsers();
   }
+
+  Future<User?> checkUser(String username, String password) async {
+    final user = await UserHelper.instance.checkUser(username, password);
+    return user;
+  }
 }

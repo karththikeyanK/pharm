@@ -1,8 +1,9 @@
 class StockDetails {
-  int ?id;
-  int ?stockId;
+  int? id;
+  int? stockId;
   String expiryDate;
   int quantity;
+  int loadqty;
   int free;
   double unitCost;
   double totalCost;
@@ -18,10 +19,11 @@ class StockDetails {
     required this.stockId,
     required this.expiryDate,
     required this.quantity,
-    this.free = 0,
+    required this.loadqty,
+    required this.free,
     required this.unitCost,
     required this.totalCost,
-    this.profit = 0.0,
+    required this.profit,
     required this.minUnitCost,
     required this.maxUnitCost,
     required this.minUnitSellPrice,
@@ -35,6 +37,7 @@ class StockDetails {
       'stock_id': stockId,
       'expiry_date': expiryDate,
       'quantity': quantity,
+      'loadqty': loadqty,
       'free': free,
       'unit_cost': unitCost,
       'total_cost': totalCost,
@@ -53,6 +56,7 @@ class StockDetails {
       stockId: map['stock_id'],
       expiryDate: map['expiry_date'],
       quantity: map['quantity'],
+      loadqty: map['loadqty'] ?? 0,
       free: map['free'] ?? 0,
       unitCost: map['unit_cost'],
       totalCost: map['total_cost'],
@@ -66,18 +70,23 @@ class StockDetails {
   }
 
   static Future<StockDetails> empty() {
-    return Future.value(StockDetails(
-      id: 0,
-      stockId: 0,
-      expiryDate: '',
-      quantity: 0,
-      unitCost: 0.0,
-      totalCost: 0.0,
-      minUnitCost: 0.0,
-      maxUnitCost: 0.0,
-      minUnitSellPrice: 0.0,
-      maxUnitSellPrice: 0.0,
-      unitSellPrice: 0.0,
-    ));
+    return Future.value(
+      StockDetails(
+        id: 0,
+        stockId: 0,
+        expiryDate: '',
+        quantity: 0,
+        loadqty: 0,
+        free: 0,
+        profit: 0.0,
+        unitCost: 0.0,
+        totalCost: 0.0,
+        minUnitCost: 0.0,
+        maxUnitCost: 0.0,
+        minUnitSellPrice: 0.0,
+        maxUnitSellPrice: 0.0,
+        unitSellPrice: 0.0,
+      ),
+    );
   }
 }
