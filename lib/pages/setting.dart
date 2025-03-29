@@ -40,14 +40,14 @@ class SettingsScreen extends StatelessWidget {
             ),
             _buildSettingBox(
               context,
-              title: 'Get Report',
-              route: '/get_report',
+              title: 'Billing Page',
+              route: BILLING_PAGE,
               icon: Icons.report,
             ),
             _buildSettingBox(
               context,
               title: 'View Billings',
-              route: BILLING_PAGE,
+              route: VIEW_BILLING_PAGE,
               icon: Icons.receipt,
             ),
             _buildSettingBox(

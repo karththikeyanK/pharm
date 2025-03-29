@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pharm/db/dto/stock_and_details.dart';
 import 'package:pharm/db/model/stock.dart';
-import '../../db/model/stock_detail.dart';
 import '../../provider/router_provider.dart';
 import '../../provider/stock_detail_provider.dart';
 import '../../provider/stock_provider.dart';
@@ -78,6 +77,7 @@ class ListStockPageState extends ConsumerState<ListStockPage> {
                     DataColumn(label: Text('Barcode', style: TextStyle(fontWeight: FontWeight.bold))),
                     DataColumn(label: Text('Expiry Date', style: TextStyle(fontWeight: FontWeight.bold))),
                     DataColumn(label: Text('Quantity', style: TextStyle(fontWeight: FontWeight.bold))),
+                    DataColumn(label: Text('Load Qty', style: TextStyle(fontWeight: FontWeight.bold))),
                     DataColumn(label: Text('Free Items', style: TextStyle(fontWeight: FontWeight.bold))),
                     DataColumn(label: Text('Unit Cost', style: TextStyle(fontWeight: FontWeight.bold))),
                     DataColumn(label: Text('Total Cost', style: TextStyle(fontWeight: FontWeight.bold))),
@@ -94,7 +94,8 @@ class ListStockPageState extends ConsumerState<ListStockPage> {
                         DataCell(Text(item.stock.name)),  // Stock Name
                         DataCell(Text(item.stock.barcode)), // Stock Barcode
                         DataCell(Text(detail.expiryDate)), // Expiry Date
-                        DataCell(Text(detail.quantity.toString())), // Quantity
+                        DataCell(Text(detail.quantity.toString())),
+                         DataCell(Text(detail.loadqty.toString())), // Quantity
                         DataCell(Text(detail.free.toString())), // Free Items
                         DataCell(Text(detail.unitCost.toStringAsFixed(2))), // Unit Cost
                         DataCell(Text(detail.totalCost.toStringAsFixed(2))), // Total Cost
@@ -107,8 +108,6 @@ class ListStockPageState extends ConsumerState<ListStockPage> {
                       ]);
                     });
                   }).toList(),
-
-
                 ),
               ),
             );

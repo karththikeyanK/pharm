@@ -53,4 +53,15 @@ class UserHelper {
     }
     return null;
   }
+
+  // check the user name and password is correct
+  Future<User?> checkUser(String username, String password) async {
+    final db = await DatabaseHelper.instance.database;
+    final maps = await db.query('users', where: 'username = ? AND password = ?', whereArgs: [username, password]);
+
+    if (maps.isNotEmpty) {
+      return User.fromMap(maps.first);
+    }
+    return null;
+  }
 }

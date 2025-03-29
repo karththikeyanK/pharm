@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+// ignore_for_file: constant_identifier_names
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:pharm/db/dto/stock_and_details.dart';
@@ -13,33 +15,37 @@ class DatabaseHelper {
 
   DatabaseHelper._init();
 
-  static const int _databaseVersion = 10;
+  static const int _databaseVersion = 18;
 
-  // ignore_for_file: non_constant_identifier_names
+  static const String STOCK_TABLE = 'stock';
+  static const String STOCK_DETAIL_TABLE = 'stock_detail';
+  static const String USER_TABLE = 'user';
+  static const String BILL_TABLE = 'bill';
+  static const String BILL_ITEM_TABLE = 'bill_item';
 
-  final String STOCK_TABLE = 'stock';
-  final String STOCK_DETAIL_TABLE = 'stock_detail';
-  final String USER_TABLE = 'user';
-
-  final String ID = 'id';
-  final String BARCODE = 'barcode';
-  final String NAME = 'name';
-  final String STOCK_ID = 'stock_id';
-  final String EXPIRY_DATE = 'expiry_date';
-  final String QUANTITY = 'quantity';
-  final String FREE = 'free';
-  final String UNIT_COST = 'unit_cost';
-  final String TOTAL_COST = 'total_cost';
-  final String PROFIT = 'profit';
-  final String MIN_UNIT_COST = 'min_unit_cost';
-  final String MAX_UNIT_COST = 'max_unit_cost';
-  final String PROFIT_PERCENTAGE = 'profit_percentage';
-  final String MIN_UNIT_SELL_PRICE = 'min_unit_sell_price';
-  final String MAX_UNIT_SELL_PRICE = 'max_unit_sell_price';
-  final String UNIT_SELL_PRICE = 'unit_sell_price';
-  final String LOADED_AT = 'loaded_at';
-
-
+  static const String ID = 'id';
+  static const String BARCODE = 'barcode';
+  static const String NAME = 'name';
+  static const String STOCK_ID = 'stock_id';
+  static const String EXPIRY_DATE = 'expiry_date';
+  static const String QUANTITY = 'quantity';
+  static const String FREE = 'free';
+  static const String UNIT_COST = 'unit_cost';
+  static const String TOTAL_COST = 'total_cost';
+  static const String PROFIT = 'profit';
+  static const String MIN_UNIT_COST = 'min_unit_cost';
+  static const String MAX_UNIT_COST = 'max_unit_cost';
+  static const String PROFIT_PERCENTAGE = 'profit_percentage';
+  static const String MIN_UNIT_SELL_PRICE = 'min_unit_sell_price';
+  static const String MAX_UNIT_SELL_PRICE = 'max_unit_sell_price';
+  static const String UNIT_SELL_PRICE = 'unit_sell_price';
+  static const String LOADED_AT = 'loaded_at';
+  static const String BILL_ID = 'bill_id';
+  static const String USER_ID = 'user_id';
+  static const String TOTAL_DISCOUNT = 'total_discount';
+  static const String STATUS = 'status';
+  static const String CREATE_AT = 'create_at';
+  static const String DISCOUNT = 'discount';
 
   final String CREATE_STOCK = '''
   CREATE TABLE stock (
@@ -55,6 +61,7 @@ class DatabaseHelper {
     stock_id INTEGER,
     expiry_date TEXT,
     quantity INTEGER,
+    loadqty INTEGER ,
     free INTEGER DEFAULT 0,
     unit_cost REAL,
     profit REAL DEFAULT 0,
@@ -70,7 +77,6 @@ class DatabaseHelper {
   )
 ''';
 
-
   final String CREATE_USER_TABLE = '''
     CREATE TABLE user (
       id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -79,6 +85,32 @@ class DatabaseHelper {
       role TEXT
     )
   ''';
+
+  final String CREATE_BILL_TABLE = '''
+  CREATE TABLE $BILL_TABLE (
+    $ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    $USER_ID INTEGER,
+    $TOTAL_COST REAL,
+    $TOTAL_DISCOUNT REAL,
+    $STATUS TEXT,
+    $CREATE_AT TEXT,
+    FOREIGN KEY ($USER_ID) REFERENCES $USER_TABLE($ID) ON DELETE CASCADE
+  )
+''';
+
+  final String CREATE_BILL_ITEMS = '''
+  CREATE TABLE $BILL_ITEM_TABLE (
+    $ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    $BILL_ID INTEGER,
+    $STOCK_ID INTEGER,
+    $QUANTITY INTEGER,
+    $UNIT_SELL_PRICE REAL,
+    $TOTAL_COST REAL,
+    $DISCOUNT REAL,
+    FOREIGN KEY ($BILL_ID) REFERENCES $BILL_TABLE($ID) ON DELETE CASCADE,
+    FOREIGN KEY ($STOCK_ID) REFERENCES $STOCK_TABLE($ID) ON DELETE CASCADE
+  )
+''';
 
   Future<Database> get database async {
     if (_database != null) return _database!;
@@ -101,22 +133,37 @@ class DatabaseHelper {
   Future<void> _createDB(Database db, int version) async {
     await db.execute(CREATE_USER_TABLE);
     await db.execute(CREATE_STOCK);
+    await db.execute(CREATE_STOCK_DETAIL);
+    await db.execute(CREATE_BILL_TABLE);
+    await db.execute(CREATE_BILL_ITEMS);
   }
 
 
   Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
-    if (oldVersion < 10) {
+    if (oldVersion < 18) {
       // want to drop databse
-      await db.execute('DROP TABLE IF EXISTS $USER_TABLE');
       await db.execute('DROP TABLE IF EXISTS $STOCK_TABLE');
       await db.execute('DROP TABLE IF EXISTS $STOCK_DETAIL_TABLE');
+      await db.execute('DROP TABLE IF EXISTS $USER_TABLE');
+      await db.execute('DROP TABLE IF EXISTS $BILL_TABLE');
+      await db.execute('DROP TABLE IF EXISTS $BILL_ITEM_TABLE');
 
       await db.execute(CREATE_USER_TABLE);
       await db.execute(CREATE_STOCK);
       await db.execute(CREATE_STOCK_DETAIL);
-
-      _insertInitialStock(db);
+      await db.execute(CREATE_BILL_TABLE);
+      await db.execute(CREATE_BILL_ITEMS);
+      insertUser(db);
+      await _insertInitialStock(db);
     }
+  }
+
+  Future<void> insertUser(Database db) async {
+    await db.insert(USER_TABLE, {
+      'username': '1010',
+      'password': '1234',
+      'role': 'admin',
+    });
   }
 
   Future<void> _insertInitialStock(Database db) async {
@@ -129,6 +176,7 @@ class DatabaseHelper {
             stockId: 1,
             expiryDate: "2024-12-31",
             quantity: 50,
+            loadqty: 50,
             free: 5,
             unitCost: 1.5,
             totalCost: 75.0,
@@ -144,6 +192,7 @@ class DatabaseHelper {
             stockId: 1,
             expiryDate: "2025-01-15",
             quantity: 40,
+            loadqty: 40,
             free: 4,
             unitCost: 1.4,
             totalCost: 56.0,
@@ -159,6 +208,7 @@ class DatabaseHelper {
             stockId: 1,
             expiryDate: "2025-03-10",
             quantity: 60,
+            loadqty: 60,
             free: 6,
             unitCost: 1.6,
             totalCost: 96.0,
@@ -179,6 +229,7 @@ class DatabaseHelper {
             stockId: 2,
             expiryDate: "2024-11-15",
             quantity: 30,
+            loadqty: 30,
             free: 3,
             unitCost: 0.5,
             totalCost: 15.0,
@@ -194,6 +245,7 @@ class DatabaseHelper {
             stockId: 2,
             expiryDate: "2025-01-20",
             quantity: 25,
+            loadqty: 25,
             free: 2,
             unitCost: 0.45,
             totalCost: 11.25,
@@ -209,6 +261,7 @@ class DatabaseHelper {
             stockId: 2,
             expiryDate: "2025-02-28",
             quantity: 35,
+            loadqty: 35,
             free: 4,
             unitCost: 0.55,
             totalCost: 19.25,
@@ -229,6 +282,7 @@ class DatabaseHelper {
             stockId: 3,
             expiryDate: "2024-10-05",
             quantity: 40,
+            loadqty: 40,
             free: 4,
             unitCost: 0.9,
             totalCost: 36.0,
@@ -244,6 +298,7 @@ class DatabaseHelper {
             stockId: 3,
             expiryDate: "2025-01-10",
             quantity: 45,
+            loadqty: 45,
             free: 5,
             unitCost: 1.0,
             totalCost: 45.0,
@@ -259,6 +314,7 @@ class DatabaseHelper {
             stockId: 3,
             expiryDate: "2025-02-25",
             quantity: 55,
+            loadqty: 55,
             free: 6,
             unitCost: 1.1,
             totalCost: 60.5,
@@ -275,24 +331,20 @@ class DatabaseHelper {
 
     for (StockAndDetails stockData in stockAndDetails) {
       // Insert Stock and get its ID
-      int stockId = await db.insert(
-        STOCK_TABLE,
-        {'barcode': stockData.stock.barcode, 'name': stockData.stock.name},
-        conflictAlgorithm: ConflictAlgorithm.ignore,
-      );
+      int stockId = await db.insert(STOCK_TABLE, {
+        'barcode': stockData.stock.barcode,
+        'name': stockData.stock.name,
+      }, conflictAlgorithm: ConflictAlgorithm.ignore);
 
       // Insert all StockDetails related to the Stock
       for (StockDetails detail in stockData.stockDetails) {
-          detail.stockId = stockId;
-          await db.insert(
-            STOCK_DETAIL_TABLE,
-            detail.toMap(),
-            conflictAlgorithm: ConflictAlgorithm.ignore,
-          );
+        detail.stockId = stockId;
+        await db.insert(
+          STOCK_DETAIL_TABLE,
+          detail.toMap(),
+          conflictAlgorithm: ConflictAlgorithm.ignore,
+        );
       }
     }
   }
-
-
-
 }

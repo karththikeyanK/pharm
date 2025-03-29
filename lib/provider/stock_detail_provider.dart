@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pharm/db/model/stock_detail.dart';
 import '../db/stock_details_helper.dart';
@@ -16,7 +18,7 @@ class StockDetailNotifier extends StateNotifier<List<StockDetails>> {
       final dbStockDetails = await StockDetailHelper.instance.getAllStockDetails();
       state = dbStockDetails;
     } catch (e) {
-      print("Error loading stock details: $e");
+      log("Error loading stock details: $e");
     }
   }
 
@@ -26,7 +28,7 @@ class StockDetailNotifier extends StateNotifier<List<StockDetails>> {
       loadStockDetails();
       return true;
     } catch (e) {
-      print("Error adding stock detail: $e");
+      log("Error adding stock detail: $e");
       return false;
     }
   }
@@ -36,7 +38,7 @@ class StockDetailNotifier extends StateNotifier<List<StockDetails>> {
       await StockDetailHelper.instance.updateStockDetail(stockDetail);
       await loadStockDetails();
     } catch (e) {
-      print("Error updating stock detail: $e");
+      log("Error updating stock detail: $e");
     }
   }
 
@@ -45,7 +47,7 @@ class StockDetailNotifier extends StateNotifier<List<StockDetails>> {
       await StockDetailHelper.instance.deleteStockDetail(id);
       await loadStockDetails();
     } catch (e) {
-      print("Error deleting stock detail: $e");
+      log("Error deleting stock detail: $e");
     }
   }
 
@@ -54,7 +56,7 @@ class StockDetailNotifier extends StateNotifier<List<StockDetails>> {
     try {
       return await StockDetailHelper.instance.getStockDetailsByStockId(stockId);
     } catch (e) {
-      print("Error loading stock details by stockId: $e");
+      log("Error loading stock details by stockId: $e");
       return [];
     }
   }
@@ -64,7 +66,7 @@ class StockDetailNotifier extends StateNotifier<List<StockDetails>> {
     try {
       return await StockDetailHelper.instance.getNearestExpiryDateByStockId(stockId,index);
     } catch (e) {
-      print("Error loading nearest expiry date by stockId: $e");
+      log("Error loading nearest expiry date by stockId: $e");
       return StockDetails.empty();
     }
   }
@@ -74,7 +76,7 @@ class StockDetailNotifier extends StateNotifier<List<StockDetails>> {
     try {
       return await StockDetailHelper.instance.getTotalQuantityByStockId(stockId);
     } catch (e) {
-      print("Error loading total quantity by stockId: $e");
+      log("Error loading total quantity by stockId: $e");
       return 0;
     }
   }

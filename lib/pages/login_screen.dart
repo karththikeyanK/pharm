@@ -1,25 +1,43 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pharm/provider/router_provider.dart';
+import 'package:pharm/provider/user_provider.dart';
 
-class LoginScreen extends StatefulWidget {
+import '../constant/appconstant.dart';
+
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  ClassicLoginScreenState createState() => ClassicLoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class ClassicLoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  void _login() {
+  Future<void> _login() async {
     if (_formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Logging in...')),
       );
-      if (_usernameController.text == '1010' && _passwordController.text == '1234') {
+
+      final user = await ref.read(userProvider.notifier).checkUser(
+        _usernameController.text,
+        _passwordController.text,
+      );
+
+      if (user != null) {
+        AppsConstant.userId = user.id!;
+        AppsConstant.userName = user.name;
+        AppsConstant.userRole = user.role;
+
+
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text('Login successful!'),
@@ -42,6 +60,7 @@ class ClassicLoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     _usernameController.text = '1010';
     _passwordController.text = '1234';
+
     return Scaffold(
       backgroundColor: Colors.grey[200],
       body: Center(
@@ -120,20 +139,22 @@ class ClassicLoginScreenState extends State<LoginScreen> {
                       ),
                       child: const Text(
                         'Login',
-                        style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontSize: 20,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),
                   const SizedBox(height: 16),
                   TextButton(
                     onPressed: () {
-                      // show alert dialog like NOw we are not able to reset password
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('We are not able to reset password at the moment'),
+                          content: Text(
+                              'We are not able to reset password at the moment'),
                         ),
                       );
-
                     },
                     child: const Text(
                       'Forgot Password?',
