@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:pharm/db/db_helper.dart';
 import 'package:sqflite/sqflite.dart';
 import '../db/model/user.dart';
@@ -11,13 +13,13 @@ class UserHelper {
   // Insert User
   Future<int> insertUser(User user) async {
     final db = await DatabaseHelper.instance.database;
-    return await db.insert('users', user.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
+    return await db.insert('user', user.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   // Get a Single User by ID
   Future<User?> getUser(int id) async {
     final db = await DatabaseHelper.instance.database;
-    List<Map<String, dynamic>> result = await db.query('users', where: 'id = ?', whereArgs: [id]);
+    List<Map<String, dynamic>> result = await db.query('user', where: 'id = ?', whereArgs: [id]);
     if (result.isNotEmpty) {
       return User.fromMap(result.first);
     }
@@ -27,26 +29,26 @@ class UserHelper {
   // Get All Users
   Future<List<User>> getAllUsers() async {
     final db = await DatabaseHelper.instance.database;
-    List<Map<String, dynamic>> result = await db.query('users');
+    List<Map<String, dynamic>> result = await db.query('user');
     return result.map((map) => User.fromMap(map)).toList();
   }
 
   // Update User
   Future<int> updateUser(User user) async {
     final db = await DatabaseHelper.instance.database;
-    return await db.update('users', user.toMap(), where: 'id = ?', whereArgs: [user.id]);
+    return await db.update('user', user.toMap(), where: 'id = ?', whereArgs: [user.id]);
   }
 
   // Delete User
   Future<int> deleteUser(int id) async {
     final db = await DatabaseHelper.instance.database;
-    return await db.delete('users', where: 'id = ?', whereArgs: [id]);
+    return await db.delete('user', where: 'id = ?', whereArgs: [id]);
   }
 
   // Get User by Username
   Future<User?> getUserByUsername(String username) async {
     final db = await DatabaseHelper.instance.database;
-    final maps = await db.query('users', where: 'username = ?', whereArgs: [username]);
+    final maps = await db.query('user', where: 'username = ?', whereArgs: [username]);
 
     if (maps.isNotEmpty) {
       return User.fromMap(maps.first);
@@ -56,8 +58,13 @@ class UserHelper {
 
   // check the user name and password is correct
   Future<User?> checkUser(String username, String password) async {
+
+    List<User>users= await getAllUsers();
+    for(User user in users){
+      log('User: ${user.username} ${user.password}');
+    }
     final db = await DatabaseHelper.instance.database;
-    final maps = await db.query('users', where: 'username = ? AND password = ?', whereArgs: [username, password]);
+    final maps = await db.query('user', where: 'username = ? AND password = ?', whereArgs: [username, password]);
 
     if (maps.isNotEmpty) {
       return User.fromMap(maps.first);

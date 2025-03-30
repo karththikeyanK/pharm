@@ -47,7 +47,7 @@ class UserListPage extends ConsumerWidget {
                 ),
                 child: ListTile(
                   contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-                  title: Text(user.name, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                  title: Text(user.username, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
                   subtitle: Text('Role: ${user.role}', style: TextStyle(color: Colors.grey[600])),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -76,7 +76,7 @@ class UserListPage extends ConsumerWidget {
   }
 
   void _showEditDialog(BuildContext context, WidgetRef ref, User user) {
-    final nameController = TextEditingController(text: user.name);
+    // final nameController = TextEditingController(text: user.name);
     final usernameController = TextEditingController(text: user.username);
     final passwordController = TextEditingController(text: user.password);
     final roleController = TextEditingController(text: user.role);
@@ -89,7 +89,7 @@ class UserListPage extends ConsumerWidget {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextField(controller: nameController, decoration: InputDecoration(labelText: 'Name')),
+              // TextField(controller: nameController, decoration: InputDecoration(labelText: 'Name')),
               TextField(controller: usernameController, decoration: InputDecoration(labelText: 'Username')),
               TextField(controller: passwordController, obscureText: true, decoration: InputDecoration(labelText: 'Password')),
               TextField(controller: roleController, decoration: InputDecoration(labelText: 'Role')),
@@ -104,7 +104,6 @@ class UserListPage extends ConsumerWidget {
               onPressed: () async {
                 final updatedUser = User(
                   id: user.id,
-                  name: nameController.text,
                   username: usernameController.text,
                   password: passwordController.text,
                   role: roleController.text,

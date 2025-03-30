@@ -33,7 +33,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
       if (user != null) {
         AppsConstant.userId = user.id!;
-        AppsConstant.userName = user.name;
+        AppsConstant.userName = user.username;
         AppsConstant.userRole = user.role;
 
 

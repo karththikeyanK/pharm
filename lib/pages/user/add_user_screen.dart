@@ -64,20 +64,20 @@ class _AddUserPageState extends ConsumerState<AddUserPage> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                TextFormField(
-                  controller: nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Name',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Enter your name';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
+                // TextFormField(
+                //   controller: nameController,
+                //   decoration: const InputDecoration(
+                //     labelText: 'Name',
+                //     border: OutlineInputBorder(),
+                //   ),
+                //   validator: (value) {
+                //     if (value == null || value.isEmpty) {
+                //       return 'Enter your name';
+                //     }
+                //     return null;
+                //   },
+                // ),
+                // const SizedBox(height: 16),
                 TextFormField(
                   controller: usernameController,
                   decoration: const InputDecoration(
@@ -136,7 +136,6 @@ class _AddUserPageState extends ConsumerState<AddUserPage> {
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
                         final user = User(
-                          name: nameController.text,
                           username: usernameController.text,
                           password: passwordController.text,
                           role: selectedRole!,

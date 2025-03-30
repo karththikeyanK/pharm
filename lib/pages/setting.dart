@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pharm/provider/router_provider.dart';
 
+import '../constant/appconstant.dart';
+
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
@@ -9,8 +11,8 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Settings',
+        title:  Text(
+          'Settings - ${AppsConstant.userName}',
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,

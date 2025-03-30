@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pharm/db/db_helper.dart';
 import 'package:pharm/provider/router_provider.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
-void main() {
+void main() async{
   sqfliteFfiInit();
   databaseFactory = databaseFactoryFfi;
+  await DatabaseHelper.instance.database;
   runApp(const ProviderScope(child: MyApp()));
 }
 

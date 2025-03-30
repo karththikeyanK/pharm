@@ -15,7 +15,7 @@ class DatabaseHelper {
 
   DatabaseHelper._init();
 
-  static const int _databaseVersion = 18;
+  static const int _databaseVersion = 24;
 
   static const String STOCK_TABLE = 'stock';
   static const String STOCK_DETAIL_TABLE = 'stock_detail';
@@ -46,6 +46,8 @@ class DatabaseHelper {
   static const String STATUS = 'status';
   static const String CREATE_AT = 'create_at';
   static const String DISCOUNT = 'discount';
+
+  static const String ADMIN = 'admin';
 
   final String CREATE_STOCK = '''
   CREATE TABLE stock (
@@ -126,45 +128,72 @@ class DatabaseHelper {
       path,
       version: _databaseVersion,
       onCreate: _createDB,
-      onUpgrade: _upgradeDB, // Handle database upgrades
+      onUpgrade: _upgradeDB,
     );
   }
 
   Future<void> _createDB(Database db, int version) async {
+    await db.execute('PRAGMA foreign_keys = ON');
+    // delete the old table
+    await db.execute('DROP TABLE IF EXISTS $STOCK_TABLE');
+    await db.execute('DROP TABLE IF EXISTS $STOCK_DETAIL_TABLE');
+    await db.execute('DROP TABLE IF EXISTS $USER_TABLE');
+    await db.execute('DROP TABLE IF EXISTS $BILL_TABLE');
+    await db.execute('DROP TABLE IF EXISTS $BILL_ITEM_TABLE');
+
+
     await db.execute(CREATE_USER_TABLE);
     await db.execute(CREATE_STOCK);
     await db.execute(CREATE_STOCK_DETAIL);
     await db.execute(CREATE_BILL_TABLE);
     await db.execute(CREATE_BILL_ITEMS);
+
+    await insertUser(db);
+    await _insertInitialStock(db);
+
   }
 
 
   Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
-    if (oldVersion < 18) {
-      // want to drop databse
-      await db.execute('DROP TABLE IF EXISTS $STOCK_TABLE');
-      await db.execute('DROP TABLE IF EXISTS $STOCK_DETAIL_TABLE');
-      await db.execute('DROP TABLE IF EXISTS $USER_TABLE');
-      await db.execute('DROP TABLE IF EXISTS $BILL_TABLE');
-      await db.execute('DROP TABLE IF EXISTS $BILL_ITEM_TABLE');
+   if(oldVersion<newVersion){
+     await db.execute('PRAGMA foreign_keys = ON');
+     await db.execute('DROP TABLE IF EXISTS $STOCK_TABLE');
+     await db.execute('DROP TABLE IF EXISTS $STOCK_DETAIL_TABLE');
+     await db.execute('DROP TABLE IF EXISTS $USER_TABLE');
+     await db.execute('DROP TABLE IF EXISTS $BILL_TABLE');
+     await db.execute('DROP TABLE IF EXISTS $BILL_ITEM_TABLE');
 
-      await db.execute(CREATE_USER_TABLE);
-      await db.execute(CREATE_STOCK);
-      await db.execute(CREATE_STOCK_DETAIL);
-      await db.execute(CREATE_BILL_TABLE);
-      await db.execute(CREATE_BILL_ITEMS);
-      insertUser(db);
-      await _insertInitialStock(db);
-    }
+     await db.execute(CREATE_USER_TABLE);
+     await db.execute(CREATE_STOCK);
+     await db.execute(CREATE_STOCK_DETAIL);
+     await db.execute(CREATE_BILL_TABLE);
+     await db.execute(CREATE_BILL_ITEMS);
+
+     await insertUser(db);
+     await _insertInitialStock(db);
+   }
   }
 
   Future<void> insertUser(Database db) async {
-    await db.insert(USER_TABLE, {
-      'username': '1010',
-      'password': '1234',
-      'role': 'admin',
-    });
+    try {
+      final result = await db.insert(
+        USER_TABLE,
+        {
+          'id': 1,
+          'username': '1010',
+          'password': '1234',
+          'role': ADMIN,
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+
+      print('User inserted with id: $result'); // Debug print
+    } catch (e) {
+      print('Error inserting user: $e'); // This will help identify any errors
+      rethrow;
+    }
   }
+
 
   Future<void> _insertInitialStock(Database db) async {
     List<StockAndDetails> stockAndDetails = [
@@ -347,4 +376,5 @@ class DatabaseHelper {
       }
     }
   }
+
 }
