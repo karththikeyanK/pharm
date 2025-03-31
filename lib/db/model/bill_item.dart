@@ -1,5 +1,5 @@
 class BillItem {
-  final int id;
+  final int? id;
   final int billId;
   final int stockId;
   final int quantity;

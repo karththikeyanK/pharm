@@ -58,4 +58,13 @@ class StockHelper {
     return Stock.empty();
   }
 
+  Future<Stock> getStockById(int id) async {
+    final db = await DatabaseHelper.instance.database;
+    final List<Map<String, dynamic>> maps = await db.query('stock', where: 'id = ?', whereArgs: [id]);
+    if (maps.isNotEmpty) {
+      return Stock.fromMap(maps.first);
+    }
+    return Stock.empty();
+  }
+
 }

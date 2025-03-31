@@ -4,6 +4,7 @@ class Bill {
   final double total;
   final double totalDiscount;
   final String createAt;
+  final String status;
 
   Bill({
     required this.id,
@@ -11,6 +12,7 @@ class Bill {
     required this.total,
     required this.totalDiscount,
     required this.createAt,
+    required this.status,
   });
 
   factory Bill.fromMap(Map<String, dynamic> json) {
@@ -20,6 +22,7 @@ class Bill {
       total: json['total_cost'].toDouble(),
       totalDiscount: json['total_discount'].toDouble(),
       createAt: json['create_at'],
+      status: json['status'],
     );
   }
 
@@ -30,6 +33,7 @@ class Bill {
       'total_cost': total,
       'total_discount': totalDiscount,
       'create_at': createAt,
+      'status': status,
     };
   }
 

@@ -55,21 +55,26 @@ class BillHelper {
       SELECT b.$ID, u.username AS username, b.$TOTAL_COST, b.$TOTAL_DISCOUNT, b.$STATUS, b.$createAt
       FROM ${DatabaseHelper.BILL_TABLE} b
       LEFT JOIN ${DatabaseHelper.USER_TABLE} u ON b.$USER_ID = u.$ID
-      WHERE b.$createAt BETWEEN ? AND ?
+      WHERE b.$STATUS = 'ACTIVE' AND b.$createAt BETWEEN ? AND ?  
       ORDER BY b.$createAt DESC
     ''', [startDate, endDate]);
 
-    if (maps.isEmpty) {
-      log("No bills found in the date range.");
-      return [];
-    }else{
-      for (var map in maps) {
-        log(map.toString());
-      }
-    }
-
     log("Fetched ${maps.length} bills.");
     return List.generate(maps.length, (i) => BillDetail.fromMap(maps[i]));
+  }
+
+  Future<int> deleteBill(int id) async {
+    try{
+      final db = await DatabaseHelper.instance.database;
+      return await db.rawUpdate('''
+      UPDATE ${DatabaseHelper.BILL_TABLE}
+      SET $STATUS = 'DELETED'
+      WHERE $ID = ?
+    ''', [id]);
+    }catch(e){
+      log("Error deleting bill: $e");
+      return 0;
+    }
   }
 
 
@@ -89,7 +94,7 @@ class BillHelper {
     );
   }
 
-  Future<int> deleteBill(int id) async {
+  Future<int> deleteBillByStatus(int id) async {
     final db = await DatabaseHelper.instance.database;
     return await db.delete(
       DatabaseHelper.BILL_TABLE,

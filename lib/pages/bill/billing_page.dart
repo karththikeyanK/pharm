@@ -7,6 +7,7 @@ import 'package:pharm/constant/appconstant.dart';
 import 'package:pharm/db/model/bill.dart';
 import 'package:pharm/db/model/bill_item.dart';
 import 'package:pharm/provider/bill_item_provide.dart';
+import '../../db/dto/stock_with_details.dart';
 import '../../db/model/stock.dart';
 import '../../provider/bill_provider.dart';
 import '../../provider/router_provider.dart';
@@ -28,11 +29,16 @@ class BillingPageState extends ConsumerState<BillingPage> {
   final TextEditingController priceController = TextEditingController();
   final TextEditingController discountController = TextEditingController();
   final TextEditingController customerAmountController = TextEditingController();
+  final TextEditingController searchController = TextEditingController();
   final FocusNode quantityFocusNode = FocusNode();
   final FocusNode nameFocusNode = FocusNode();
   final FocusNode barcodeFocusNode = FocusNode();
   List<Map<String, dynamic>> items = [];
   List<Stock> stocks = [];
+  List<StockWithDetails> stockDetails = [];
+  List<StockWithDetails> temp = [];
+  bool isLoading = true;
+
 
   double balance = 0.0;
 
@@ -50,6 +56,11 @@ class BillingPageState extends ConsumerState<BillingPage> {
       quantityController.clear();
       priceController.clear();
       discountController.clear();
+    }else{
+      barcodeController.clear();
+      nameController.clear();
+
+      showErrorSnackBar("Please Try again!");
     }
   }
 
@@ -60,10 +71,15 @@ class BillingPageState extends ConsumerState<BillingPage> {
         .getTotalQuantityByStockId(stock.id!);
     int alreadyAddedQty = getAvailableQty(stock.barcode);
     if (qty > availableQty - alreadyAddedQty) {
-      showAlertDialog(
-        "Not enough stock available",
-        "Available Stock: $availableQty",
-        () {context.pop();},
+      showStyledDialog(
+        context: context,
+        title: 'Stock Alert',
+        content: 'Not enough stock available\nAvailable Stock: $availableQty',
+        icon: Icons.inventory_2,
+        iconColor: Colors.orange.shade700,
+        confirmText: 'OK',
+        confirmColor: Colors.blue.shade800,
+        onConfirm: () => context.pop(),
       );
     } else {
       int i = 0;
@@ -88,6 +104,7 @@ class BillingPageState extends ConsumerState<BillingPage> {
         setState(() {
           items.add({
           "stockId": stock.id,
+          "stockDetailId": stockDetail.id,
           "barcode": stock.barcode,
           "name": stock.name,
           "quantity": addedQty,
@@ -110,31 +127,109 @@ class BillingPageState extends ConsumerState<BillingPage> {
     }
   }
 
- 
 
-  // Show alert dialog
-  Future<void> showAlertDialog(
-    String title,
-    String content,
-    VoidCallback func,
-  ) async {
+
+  Future<void> showStyledDialog({
+    required BuildContext context,
+    required String title,
+    required String content,
+    String confirmText = 'OK',
+    String? cancelText,
+    VoidCallback? onConfirm,
+    VoidCallback? onCancel,
+    Color? confirmColor,
+    Color? cancelColor,
+    IconData? icon,
+    Color? iconColor,
+    bool barrierDismissible = true,
+  }) async {
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+
     return showDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(title),
-          content: Text(content),
-          actions: [
-            TextButton(
-              onPressed: func, // Use the provided function directly
-              child: Text("OK"),
+      barrierDismissible: barrierDismissible,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.0),
+        ),
+        elevation: 4,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 300), // Set your desired max width here
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (icon != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 16.0),
+                    child: Icon(
+                      icon,
+                      size: 48,
+                      color: iconColor ?? theme.primaryColor,
+                    ),
+                  ),
+                Text(
+                  title,
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  content,
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: isDarkMode ? Colors.white70 : Colors.grey.shade800,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    if (cancelText != null)
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          onCancel?.call();
+                        },
+                        style: TextButton.styleFrom(
+                          foregroundColor: cancelColor ??
+                              (isDarkMode ? Colors.white70 : Colors.grey.shade700),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
+                        ),
+                        child: Text(cancelText),
+                      ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        onConfirm?.call();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: confirmColor ?? theme.primaryColor,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 10),
+                        elevation: 2,
+                      ),
+                      child: Text(confirmText),
+                    ),
+                  ],
+                ),
+              ],
             ),
-          ],
-        );
-      },
+          ),
+        ),
+      ),
     );
   }
-
   // show error snackbar
   void showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -179,9 +274,13 @@ class BillingPageState extends ConsumerState<BillingPage> {
   }
 
   double getBalance() {
-  double customerAmount = double.tryParse(customerAmountController.text) ?? 0.0;
-  return customerAmount - getTotalAmount();
-}
+    double customerAmount = double.tryParse(customerAmountController.text) ?? 0.0;
+    return customerAmount - getTotalAmount();
+  }
+
+  double getDiscount() {
+    return items.fold(0, (sum, item) => sum + (item["discount"]*item["quantity"]));
+  }
 
 @override
 void initState() {
@@ -189,8 +288,18 @@ void initState() {
   customerAmountController.addListener(() {
     setState(() {}); // Rebuild the UI when customer amount changes
   });
+  _fetchStockDetails();
 }
 
+  Future<void> _fetchStockDetails() async {
+    final data = await ref.read(stockDetailProvider.notifier).getAllStockAndDetails();
+    final filteredData = data.where((item) => item.quantity > 0).toList();
+    setState(() {
+      stockDetails = filteredData;
+      temp = filteredData;
+      isLoading = false;
+    }); // Update the UI after fetching the data
+  }
 
 
   @override
@@ -210,141 +319,347 @@ void initState() {
       ),
       body: Padding(
         padding: const EdgeInsets.all(10.0),
-        child: Column(
-          children: [
-            BillingInputSection(
-              barcodeController: barcodeController,
-              nameController: nameController,
-              priceController: priceController,
-              quantityController: quantityController,
-              quantityFocusNode: quantityFocusNode,
-              stockList: stockList,
-              addItem: addItem,
-              nameFocusNode: nameFocusNode,
-              barcodeFocusNode: barcodeFocusNode,
-            ),
-            SizedBox(height: 10),
+        child: Row(
+          children:[
             Expanded(
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal, // Enable horizontal scrolling
-                child: DataTable(
-                  columns: [
-                    DataColumn(label: Text("Name")),
-                    DataColumn(label: Text("Expiry Date")),
-                    DataColumn(label: Text("Qty")),
-                    DataColumn(label: Text("Unit Cost")),
-                    DataColumn(label: Text("Min Unit Sell Price")),
-                    DataColumn(label: Text("Max Unit Sell Price")),
-                    DataColumn(label: Text("Unit Sell Price")),
-                    DataColumn(label: Text("Discount (/per)")),
-                    DataColumn(label: Text("Amount")),
-                    DataColumn(label: Text("Action")),
-                  ],
-                  rows: List.generate(
-                    items.length,
-                    (index) => DataRow(
-                      cells: [
-                        DataCell(Text(items[index]["name"] ?? 'N/A')),
-                        DataCell(Text(items[index]["expiryDate"] ?? 'N/A')),
-                        DataCell(
-                          Text(items[index]["quantity"]?.toString() ?? '0'),
-                        ),
-                        DataCell(
-                          Text(
-                            (items[index]["unitCost"] ?? 0.0).toStringAsFixed(
-                              2,
-                            ),
-                          ),
-                        ),
-                        DataCell(
-                          Text(
-                            (items[index]["minUnitSellPrice"] ?? 0.0)
-                                .toStringAsFixed(2),
-                          ),
-                        ),
-                        DataCell(
-                          Text(
-                            (items[index]["maxUnitSellPrice"] ?? 0.0)
-                                .toStringAsFixed(2),
-                          ),
-                        ),
-                        DataCell(
-                          Text(
-                            (items[index]["unitSellPrice"] ?? 0.0)
-                                .toStringAsFixed(2),
-                          ),
-                        ),
-                        DataCell(
-                          TextField(
-                            decoration: InputDecoration(
-                              hintText: "Discount",
-                              border: InputBorder.none,
-                            ),
-                            controller: discountController,
-                            keyboardType: TextInputType.number,
-                            onChanged: (value) {
-                              barcodeFocusNode.unfocus();
-                              double discount = double.tryParse(value) ?? 0.0;
-                              updateDiscount(index, discount);
-                            },
-                          ),
-                        ),
-                        DataCell(
-                          Text(
-                            (items[index]["amount"] ?? 0.0).toStringAsFixed(2),
-                          ),
-                        ),
-                        DataCell(
-                          IconButton(
-                            icon: Icon(Icons.delete, color: Colors.red),
-                            onPressed: () => deleteItem(index),
-                          ),
-                        ),
-                      ],
+              flex: 7,
+              child: Padding(
+                padding: EdgeInsets.all(10.0),
+                child: Column(
+                  children: [
+                    BillingInputSection(
+                      barcodeController: barcodeController,
+                      nameController: nameController,
+                      priceController: priceController,
+                      quantityController: quantityController,
+                      quantityFocusNode: quantityFocusNode,
+                      stockList: stockList,
+                      addItem: addItem,
+                      nameFocusNode: nameFocusNode,
+                      barcodeFocusNode: barcodeFocusNode,
                     ),
-                  ),
+                    SizedBox(height: 10),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.vertical, // Enable horizontal scrolling
+                        child: DataTable(
+                          columns: [
+                            DataColumn(label: Text("Name")),
+                            DataColumn(label: Text("Exp Date")),
+                            DataColumn(label: Text("Qty")),
+                            DataColumn(label: Text("Min Unit Sell Price")),
+                            DataColumn(label: Text("Max Unit Sell Price")),
+                            DataColumn(label: Text("Unit Sell Price")),
+                            DataColumn(label: Text("Discount (/per)")),
+                            DataColumn(label: Text("Amount")),
+                            DataColumn(label: Text("Action")),
+                          ],
+                          rows: List.generate(
+                            items.length,
+                                (index) => DataRow(
+                              cells: [
+                                DataCell(Text(items[index]["name"] ?? 'N/A')),
+                                DataCell(Text(items[index]["expiryDate"] ?? 'N/A')),
+                                DataCell(Text(items[index]["quantity"]?.toString() ?? '0'),),
+                                DataCell(Text((items[index]["minUnitSellPrice"] ?? 0.0).toStringAsFixed(2),),),
+                                DataCell(Text((items[index]["maxUnitSellPrice"] ?? 0.0).toStringAsFixed(2),),),
+                                DataCell(Text((items[index]["unitSellPrice"] ?? 0.0).toStringAsFixed(2),),),
+                                DataCell(
+                                  TextField(
+                                    decoration: InputDecoration(
+                                      hintText: "0.0",
+                                      border: InputBorder.none,
+                                    ),
+                                    keyboardType: TextInputType.number,
+                                    onChanged: (value) {
+                                      barcodeFocusNode.unfocus();
+                                      double discount = double.tryParse(value) ?? 0.0;
+                                      updateDiscount(index, discount);
+                                    },
+                                  ),
+                                ),
+                                DataCell(
+                                  Text(
+                                    (items[index]["amount"] ?? 0.0).toStringAsFixed(2),
+                                  ),
+                                ),
+                                DataCell(
+                                  IconButton(
+                                    icon: Icon(Icons.delete, color: Colors.red),
+                                    onPressed: () => deleteItem(index),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    paymentSection()
+                  ],
                 ),
               ),
             ),
-            SizedBox(height: 20),
-            Text(
-              "Total Amount: ₹${getTotalAmount().toStringAsFixed(2)}",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 20),
-            SizedBox(height: 10),
-            _buildInputField(controller: customerAmountController, label: "Amount"),
-            SizedBox(height: 10),
-            Text(
-              "Balance: ₹${getBalance().toStringAsFixed(2)}",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                double balance = getBalance();
-                if (balance < 0) {
-                  showErrorSnackBar("Customer amount is less than total amount");
-                } else {
-                  addBill();
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                backgroundColor: Colors.blue, // Custom color
-                foregroundColor: Colors.white, // Text color
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8), // Rounded corners
+            Expanded(
+              flex: 3, // 30% width
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey, width: 1.5), // Border color & width
+                  borderRadius: BorderRadius.circular(8.0), // Optional: Rounded corners
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(10.0), // Add padding inside the right section
+                  child: _searchStock(), // Call the function to build the search stock section
                 ),
               ),
-              
-              child: const Text("Add bill"), // Add the `child` parameter
-            ),
-          ],
+            )
+          ]
         ),
       ),
     );
   }
+
+  Widget paymentSection(){
+    return Column(
+      children: [
+        const SizedBox(height: 24),
+
+        // Horizontal Amount Cards
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              children: [
+                // Total Amount
+                _buildCompactAmountCard(
+                  title: "Total",
+                  amount: getTotalAmount(),
+                  icon: Icons.receipt,
+                  color: Colors.blue.shade700,
+                  width: 250,
+                ),
+                const SizedBox(width: 12),
+
+                // Discount
+                _buildCompactAmountCard(
+                  title: "Discount",
+                  amount: getDiscount(),
+                  icon: Icons.discount,
+                  color: Colors.orange.shade700,
+                  width: 250,
+                ),
+                const SizedBox(width: 12),
+
+                // Customer Amount Input (Compact)
+                Container(
+                  width: 250,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.grey.shade50,
+                    border: Border.all(color: Colors.grey.shade300),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.payments, size: 20, color: Colors.green.shade700),
+                          const SizedBox(width: 8),
+                          Text(
+                            "Paid",
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 15),
+                      TextField(
+                        controller: customerAmountController,
+                        decoration: const InputDecoration(
+                          isDense: true,
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.zero,
+                          hintText: "0.00",
+                          prefixText: "LKR ",
+                        ),
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        keyboardType: TextInputType.numberWithOptions(decimal: true),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 24),
+
+        // Balance Display
+        Center(
+          child: Container(
+            width: 250,
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            decoration: BoxDecoration(
+              color: getBalance() < 0
+                  ? Colors.red.shade100
+                  : Colors.green.shade100,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: RichText(
+              text: TextSpan(
+                style: const TextStyle(
+                  fontSize: 18,
+                  color: Colors.black87,
+                ),
+                children: [
+                  const TextSpan(text: "Balance: "),
+                  TextSpan(
+                    text: "LKR ${getBalance().toStringAsFixed(2)}",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: getBalance() < 0
+                          ? Colors.red.shade800
+                          : Colors.green.shade800,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 32),
+
+        // Submit Button
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          child: ElevatedButton(
+            onPressed: () {
+              double balance = getBalance();
+              if (balance < 0) {
+                showErrorSnackBar("Payment insufficient by LKR ${balance.abs().toStringAsFixed(2)}");
+              } else {
+                addBill();
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              minimumSize: const Size(double.infinity, 56),
+              backgroundColor: Colors.blue.shade800,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 2,
+            ),
+            child: const Text(
+              "PROCESS PAYMENT",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+
+  // Compact Amount Card Widget
+  Widget _buildCompactAmountCard({
+    required String title,
+    required double amount,
+    required IconData icon,
+    required Color color,
+    required double width,
+  }) {
+    return Container(
+      width: width,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: color.withOpacity(0.08),
+        border: Border.all(color: color.withOpacity(0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 18, color: color),
+              const SizedBox(width: 8),
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: color,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            "LKR ${amount.toStringAsFixed(2)}",
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _searchStock() {
+    return Column(
+      children: [
+        _buildInputField(controller: searchController, label: "Search Stock"),
+        SizedBox(height: 10),
+
+        ElevatedButton(
+          onPressed: () async {
+            await _fetchStockDetails();
+            _filterStocks(searchController.text);
+          },
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size(double.infinity, 56),
+            backgroundColor: Colors.blue.shade800,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            elevation: 2,
+          ),
+          child: const Text(
+            "SEARCH STOCK",
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ),
+
+        SizedBox(height: 10),
+
+        Expanded(
+          child: isLoading
+              ? Center(child: CircularProgressIndicator())
+          :_buildStockList()// Function to build and display stock list
+        ),
+      ],
+    );
+  }
+
+
 
 
   Widget _buildInputField({
@@ -373,9 +688,10 @@ void initState() {
     Bill bill = Bill(
       id: null,
       userId: AppsConstant.userId,
-      total: getTotalAmount(),
-      totalDiscount: 0.0,
+      total: double.parse((getTotalAmount() as num).toStringAsFixed(2)),
+      totalDiscount: getDiscount(),
       createAt: DateTime.now().toString(),
+      status: "ACTIVE",
     );
 
     int r = await ref.read(billProvider.notifier).addBill(bill);
@@ -385,18 +701,24 @@ void initState() {
     }else{
       List<BillItem> billItems = items.map((item) {
         return BillItem(
-          id: 0,
+          id: null,
           billId: r,
           stockId: item["stockId"],
           quantity: item["quantity"],
           unitSellPrice: item["unitSellPrice"],
           discount: item["discount"],
-          totalCost: item["amount"],
+          totalCost: double.parse((item["amount"] as num).toStringAsFixed(2)),
         );
       }).toList();
 
       for (BillItem billItem in billItems) {
-        ref.read(billItemProvider.notifier).addBillItem(billItem);
+       await ref.read(billItemProvider.notifier).addBillItem(billItem);
+      }
+
+      for (int i = 0; i < items.length; i++) {
+        int stockDetailId = items[i]["stockDetailId"];
+        int quantity = items[i]["quantity"];
+        await ref.read(stockDetailProvider.notifier).reduceStockQuantity(stockDetailId, quantity);
       }
 
       setState(() {
@@ -413,7 +735,58 @@ void initState() {
     }
     }
 
+  Widget _buildStockList() {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: DataTable(
+          columns: const [
+            DataColumn(label: Text('Name', style: TextStyle(fontWeight: FontWeight.bold))),
+            DataColumn(label: Text('Expiry Date', style: TextStyle(fontWeight: FontWeight.bold))),
+            DataColumn(label: Text('Qty', style: TextStyle(fontWeight: FontWeight.bold))),
+            DataColumn(label: Text('Min Price', style: TextStyle(fontWeight: FontWeight.bold))),
+            // DataColumn(label: Text('Price', style: TextStyle(fontWeight: FontWeight.bold))),
+          ],
+          rows: temp.map((detail) {
+            return DataRow(
+              cells: [
+                DataCell(Text(detail.name)),
+                DataCell(Text(detail.expiryDate)),
+                DataCell(Text(detail.quantity.toString())),
+                DataCell(Text(detail.minUnitSellPrice.toStringAsFixed(2))),
+                // DataCell(Text(detail.unitSellPrice.toStringAsFixed(2))),
+              ],
+            );
+          }).toList(),
+        ),
+      ),
+    );
+  }
 
+  // Filter function
+  void _filterStocks(String query) {
+    if (query.isEmpty) {
+      // If search is empty, show all items
+      setState(() {
+        temp = stockDetails;
+      });
+      return;
+    }
 
+    setState(() {
+      temp = stockDetails.where((stock) {
+        // Search by name (case insensitive)
+        final nameMatch = stock.name.toLowerCase().contains(query.toLowerCase());
+        // Search by barcode (case insensitive)
+        final barcodeMatch = stock.barcode.toLowerCase().contains(query.toLowerCase());
+        // Search by expiry date
+        final expiryMatch = stock.expiryDate.toLowerCase().contains(query.toLowerCase());
+
+        // Return true if any field matches
+        return nameMatch || barcodeMatch || expiryMatch;
+      }).toList();
+    });
+  }
 
 }

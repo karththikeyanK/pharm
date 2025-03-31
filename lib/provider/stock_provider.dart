@@ -73,6 +73,16 @@ class StockNotifier extends StateNotifier<List<Stock>> {
     }
   }
 
+  Future<Stock?> getStockById(int id) async {
+    try {
+      final dbStock = await StockHelper.instance.getStockById(id);
+      return dbStock; // Return the stock directly
+    } catch (e) {
+      print("Error loading stock by id: $e");
+      return null; // Return null if there's an error
+    }
+  }
+
 
 
 }

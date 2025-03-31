@@ -22,9 +22,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   Future<void> _login() async {
     if (_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Logging in...')),
-      );
+
 
       final user = await ref.read(userProvider.notifier).checkUser(
         _usernameController.text,
@@ -160,6 +158,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       'Forgot Password?',
                       style: TextStyle(color: Colors.blue),
                     ),
+                  ),
+                  const Text(
+                    'V.1.0.0',
+                    style: TextStyle(color: Colors.grey, fontSize: 12),
+                  ),
+                  SizedBox(height: 6),
+                  const Text(
+                    '© 2024 GingerX. All rights reserved.',
+                    style: TextStyle(color: Colors.grey, fontSize: 12),
                   ),
                 ],
               ),

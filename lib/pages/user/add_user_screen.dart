@@ -24,135 +24,219 @@ class _AddUserPageState extends ConsumerState<AddUserPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add User', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),),
-        backgroundColor: Colors.blue,
-        leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.white),
-        onPressed: () {
-          GoRouter.of(context).go(ADMIN_SETTINGS);
-          },
-        ),
-        ),
-      backgroundColor: Colors.grey[200], // Background color for the screen
-      body: Center(
-        child: Container(
-          padding: const EdgeInsets.all(16.0),
-          height: 450, // Adjust the height as needed
-          width: 350, // Adjust the width to make it smaller
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.3),
-                spreadRadius: 3,
-                blurRadius: 5,
-                offset: const Offset(0, 3),
-              ),
-            ],
+        title: const Text('Add New User',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 0.5,
+            color: Colors.white
           ),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  'Add User',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
+        ),
+        backgroundColor: Colors.blue.shade800,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => GoRouter.of(context).go(ADMIN_SETTINGS),
+        ),
+        centerTitle: true,
+        elevation: 4,
+      ),
+      backgroundColor: Colors.grey.shade100,
+      body: Center(
+        child: SingleChildScrollView(
+          child: Container(
+            padding: const EdgeInsets.all(32),
+            constraints: const BoxConstraints(maxWidth: 500),
+            child: Card(
+              elevation: 8,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(32.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.person_add_alt_1,
+                        size: 48,
+                        color: Colors.blue.shade700,
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Create New User',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Fill in the details to create a new user account',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey.shade600,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 32),
+
+                      // Username Field
+                      TextFormField(
+                        controller: usernameController,
+                        decoration: InputDecoration(
+                          labelText: 'Username',
+                          prefixIcon: Icon(Icons.person_outline),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(color: Colors.grey.shade400),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(
+                                color: Colors.blue.shade700,
+                                width: 2),
+                          ),
+                          floatingLabelStyle: TextStyle(
+                            color: Colors.blue.shade700,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a username';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Password Field
+                      TextFormField(
+                        controller: passwordController,
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          labelText: 'Password',
+                          prefixIcon: Icon(Icons.lock_outline),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(color: Colors.grey.shade400),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(
+                                color: Colors.blue.shade700,
+                                width: 2),
+                          ),
+                          floatingLabelStyle: TextStyle(
+                            color: Colors.blue.shade700,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a password';
+                          }
+                          if (value.length < 6) {
+                            return 'Password must be at least 6 characters';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Role Dropdown
+                      DropdownButtonFormField<String>(
+                        value: selectedRole,
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            selectedRole = newValue;
+                          });
+                        },
+                        items: const [
+                          DropdownMenuItem(
+                            value: 'ADMIN',
+                            child: Text('Admin', style: TextStyle(fontSize: 14)),
+                          ),
+                          DropdownMenuItem(
+                            value: 'CASHIER',
+                            child: Text('Cashier', style: TextStyle(fontSize: 14)),
+                          ),
+                        ],
+                        decoration: InputDecoration(
+                          labelText: 'User Role',
+                          prefixIcon: Icon(Icons.assignment_ind_outlined),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(color: Colors.grey.shade400),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(
+                                color: Colors.blue.shade700,
+                                width: 2),
+                          ),
+                          floatingLabelStyle: TextStyle(
+                            color: Colors.blue.shade700,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please select a role';
+                          }
+                          return null;
+                        },
+                        dropdownColor: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        icon: Icon(Icons.arrow_drop_down,
+                            color: Colors.grey.shade600),
+                      ),
+                      const SizedBox(height: 32),
+
+                      // Submit Button
+                      SizedBox(
+                        width: double.infinity,
+                        height: 50,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) {
+                              final user = User(
+                                username: usernameController.text,
+                                password: passwordController.text,
+                                role: selectedRole!,
+                              );
+                              ref.read(userProvider.notifier).addUser(user);
+                              GoRouter.of(context).go(ADMIN_SETTINGS);
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue.shade700,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            elevation: 2,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                          ),
+                          child: const Text(
+                            'CREATE USER',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 20),
-                // TextFormField(
-                //   controller: nameController,
-                //   decoration: const InputDecoration(
-                //     labelText: 'Name',
-                //     border: OutlineInputBorder(),
-                //   ),
-                //   validator: (value) {
-                //     if (value == null || value.isEmpty) {
-                //       return 'Enter your name';
-                //     }
-                //     return null;
-                //   },
-                // ),
-                // const SizedBox(height: 16),
-                TextFormField(
-                  controller: usernameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Username',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Enter a username';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: passwordController,
-                  obscureText: true,
-                  decoration: const InputDecoration(
-                    labelText: 'Password',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Enter a password';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                DropdownButtonFormField<String>(
-                  value: selectedRole,
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      selectedRole = newValue;
-                    });
-                  },
-                  items: const [
-                    DropdownMenuItem(value: 'ADMIN', child: Text('Admin')),
-                    DropdownMenuItem(value: 'CASHIER', child: Text('Cashier')),
-                  ],
-                  decoration: const InputDecoration(
-                    labelText: 'Role',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Select a role';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 40),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        final user = User(
-                          username: usernameController.text,
-                          password: passwordController.text,
-                          role: selectedRole!,
-                        );
-                        ref.read(userProvider.notifier).addUser(user);
-                        GoRouter.of(context).go(ADMIN_SETTINGS);
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue, // Blue button color
-                      padding: const EdgeInsets.symmetric(vertical: 20),
-                      foregroundColor: Colors.white,
-                    ),
-                    child: const Text('Add User'),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         ),
