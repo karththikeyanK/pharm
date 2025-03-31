@@ -1,5 +1,8 @@
+import 'dart:developer';
+
 import 'package:sqflite/sqflite.dart';
 import 'package:pharm/db/db_helper.dart';
+import 'dto/bill_item_detail.dart';
 import 'model/bill_item.dart';
 
 class BillItemHelper {
@@ -20,14 +23,17 @@ class BillItemHelper {
     );
   }
 
-  Future<List<BillItem>> getByBillId(int billId) async {
+  Future<List<BillItemDetail>> getByBillId(int billId) async {
     final db = await DatabaseHelper.instance.database;
-    List<Map<String, dynamic>> maps = await db.query(
-      DatabaseHelper.BILL_ITEM_TABLE,
-      where: '${DatabaseHelper.BILL_ID} = ?',
-      whereArgs: [billId],
-    );
-    return List.generate(maps.length, (i) => BillItem.fromMap(maps[i]));
+    String query = '''
+      SELECT bi.id, bi.bill_id, bi.stock_id, bi.quantity, bi.unit_sell_price, bi.total_cost, bi.discount, s.name as stock_name
+      FROM ${DatabaseHelper.BILL_ITEM_TABLE} bi
+      JOIN ${DatabaseHelper.STOCK_TABLE} s
+      ON bi.stock_id = s.id
+      WHERE bi.bill_id = $billId
+    ''';
+    List<Map<String, dynamic>> maps = await db.rawQuery(query);
+    return List.generate(maps.length, (i) => BillItemDetail.fromMap(maps[i]));
   }
 
   Future<List<BillItem>> getAll() async {

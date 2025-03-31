@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../db/bill_item_helper.dart';
+import '../db/dto/bill_item_detail.dart';
 import '../db/model/bill_item.dart';
 
 final billItemProvider = StateNotifierProvider<BillItemProvider, List<BillItem>>((ref) {
@@ -53,7 +54,7 @@ class BillItemProvider extends StateNotifier<List<BillItem>> {
     }
   }
 
-  Future<List<BillItem>?> getBillItemByBillId(int billId) async {
+  Future<List<BillItemDetail>?> getBillItemByBillId(int billId) async {
     try {
       final dbBillItem = await BillItemHelper.instance.getByBillId(billId);
       return dbBillItem;

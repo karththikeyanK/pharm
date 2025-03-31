@@ -1,3 +1,4 @@
+import 'package:pharm/db/dto/stock_with_details.dart';
 import 'package:pharm/db/model/stock_detail.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:pharm/db/db_helper.dart';
@@ -35,7 +36,7 @@ class StockDetailHelper{
 
   Future<List<StockDetails>> getStockDetailsByStockId(int stockId) async {
     final db = await DatabaseHelper.instance.database;
-    final List<Map<String, dynamic>> maps = await db.query('stock_detail', where: 'stock_id = ?', whereArgs: [stockId]);
+    final List<Map<String, dynamic>> maps = await db.query('stock_detail', where: 'stock_id = ? AND quantity > 0', whereArgs: [stockId]);
     return List.generate(maps.length, (i) => StockDetails.fromMap(maps[i]));
   }
 
@@ -47,7 +48,7 @@ class StockDetailHelper{
     final db = await DatabaseHelper.instance.database;
     final List<Map<String, dynamic>> maps = await db.query(
       'stock_detail',
-      where: 'stock_id = ?', // Filter by stock ID
+      where: 'stock_id = ? AND quantity > 0', // Filter by stock ID
       whereArgs: [stockId],
       orderBy: 'expiry_date ASC', // Sort by expiry date (ascending)
       limit: index, // Limit the results to `index` items
@@ -63,5 +64,27 @@ class StockDetailHelper{
     final List<Map<String, dynamic>> maps = await db.rawQuery('SELECT SUM(quantity) as total_quantity FROM stock_detail WHERE stock_id = ?', [stockId]);
     return maps[0]['total_quantity'];
   }
+
+  Future<List<StockWithDetails>>  getAllStockAndDetails() {
+    return DatabaseHelper.instance.database.then((db) async {
+      final List<Map<String, dynamic>> maps = await db.rawQuery('SELECT * FROM stock_detail INNER JOIN stock ON stock_detail.stock_id = stock.id');
+      return List.generate(maps.length, (i) => StockWithDetails.fromMap(maps[i]));
+    });
+  }
+
+  // reduce the quantity of stock by stock ID
+  Future<int> reduceStockQuantity(int id, int quantity) async {
+    final db = await DatabaseHelper.instance.database;
+    return await db.rawUpdate('UPDATE stock_detail SET quantity = quantity - ? WHERE id = ?', [quantity, id]);
+  }
+
+
+  Future<StockDetails> getStockDetailById(int id) async {
+    final db = await DatabaseHelper.instance.database;
+    final List<Map<String, dynamic>> maps = await db.query('stock_detail', where: 'id = ?', whereArgs: [id]);
+    return StockDetails.fromMap(maps[0]);
+  }
+
+
 
 }

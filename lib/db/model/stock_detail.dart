@@ -2,6 +2,8 @@ class StockDetails {
   int? id;
   int? stockId;
   String expiryDate;
+  String reminderDate;
+  int reminderQty;
   int quantity;
   int loadqty;
   int free;
@@ -13,11 +15,14 @@ class StockDetails {
   double minUnitSellPrice;
   double maxUnitSellPrice;
   double unitSellPrice;
+  String loadedAt;
 
   StockDetails({
     required this.id,
     required this.stockId,
     required this.expiryDate,
+    required this.reminderDate,
+    required this.reminderQty,
     required this.quantity,
     required this.loadqty,
     required this.free,
@@ -29,6 +34,7 @@ class StockDetails {
     required this.minUnitSellPrice,
     required this.maxUnitSellPrice,
     required this.unitSellPrice,
+    required this.loadedAt
   });
 
   Map<String, dynamic> toMap() {
@@ -36,6 +42,8 @@ class StockDetails {
       'id': id,
       'stock_id': stockId,
       'expiry_date': expiryDate,
+      'reminder_date': reminderDate,
+      'reminder_qty': reminderQty,
       'quantity': quantity,
       'loadqty': loadqty,
       'free': free,
@@ -47,6 +55,7 @@ class StockDetails {
       'min_unit_sell_price': minUnitSellPrice,
       'max_unit_sell_price': maxUnitSellPrice,
       'unit_sell_price': unitSellPrice,
+      'loaded_at': loadedAt
     };
   }
 
@@ -55,6 +64,8 @@ class StockDetails {
       id: map['id'],
       stockId: map['stock_id'],
       expiryDate: map['expiry_date'],
+      reminderDate: map['reminder_date'],
+      reminderQty: map['reminder_qty'],
       quantity: map['quantity'],
       loadqty: map['loadqty'] ?? 0,
       free: map['free'] ?? 0,
@@ -66,6 +77,7 @@ class StockDetails {
       minUnitSellPrice: map['min_unit_sell_price'],
       maxUnitSellPrice: map['max_unit_sell_price'],
       unitSellPrice: map['unit_sell_price'],
+      loadedAt: map['loaded_at']
     );
   }
 
@@ -75,6 +87,8 @@ class StockDetails {
         id: 0,
         stockId: 0,
         expiryDate: '',
+        reminderDate: '',
+        reminderQty: 0,
         quantity: 0,
         loadqty: 0,
         free: 0,
@@ -86,6 +100,7 @@ class StockDetails {
         minUnitSellPrice: 0.0,
         maxUnitSellPrice: 0.0,
         unitSellPrice: 0.0,
+        loadedAt: ''
       ),
     );
   }

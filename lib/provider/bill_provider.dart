@@ -73,4 +73,14 @@ class BillNotifier extends StateNotifier<List<Bill>> {
       return null;
     }
   }
+
+  Future<int> deleteBillByStatus(int id) async {
+    try{
+      final r = await BillHelper.instance.deleteBillByStatus(id);
+      return r;
+    }catch(e){
+      log("Error deleting bill: $e");
+      return 0;
+    }
+  }
 }

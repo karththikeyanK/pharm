@@ -177,8 +177,7 @@ class BillingInputSection extends StatelessWidget {
   // Validate if a stock item is selected
   bool _validateStockSelection() {
     return barcodeController.text.isNotEmpty &&
-        nameController.text.isNotEmpty &&
-        priceController.text.isNotEmpty;
+        nameController.text.isNotEmpty;
   }
 
   void onBarcodeEntered(String barcode) {

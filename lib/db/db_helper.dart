@@ -15,7 +15,7 @@ class DatabaseHelper {
 
   DatabaseHelper._init();
 
-  static const int _databaseVersion = 24;
+  static const int _databaseVersion = 27;
 
   static const String STOCK_TABLE = 'stock';
   static const String STOCK_DETAIL_TABLE = 'stock_detail';
@@ -46,45 +46,52 @@ class DatabaseHelper {
   static const String STATUS = 'status';
   static const String CREATE_AT = 'create_at';
   static const String DISCOUNT = 'discount';
+  static const String REMINDER_DATE = 'reminder_date';
+  static const String REMINDER_QTY = 'reminder_qty';
+  static const String LOADQTY = 'loadqty';
+  static const String USERNAME = 'username';
+  static const String PASSWORD = 'password';
+  static const String ROLE = 'role';
 
   static const String ADMIN = 'admin';
 
   final String CREATE_STOCK = '''
   CREATE TABLE stock (
-    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-    barcode TEXT UNIQUE,
-    name TEXT
+    $ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    $BARCODE TEXT UNIQUE,
+    $NAME TEXT
   )
 ''';
 
   final String CREATE_STOCK_DETAIL = '''
   CREATE TABLE stock_detail (
-    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-    stock_id INTEGER,
-    expiry_date TEXT,
-    quantity INTEGER,
-    loadqty INTEGER ,
-    free INTEGER DEFAULT 0,
-    unit_cost REAL,
-    profit REAL DEFAULT 0,
-    total_cost REAL,
-    min_unit_cost REAL,
-    max_unit_cost REAL,
-    profit_percentage REAL,
-    min_unit_sell_price REAL,
-    max_unit_sell_price REAL,
-    unit_sell_price REAL,
-    loaded_at TEXT DEFAULT CURRENT_TIMESTAMP,  
-    FOREIGN KEY (stock_id) REFERENCES stock(id) ON DELETE CASCADE
+    $ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    $STOCK_ID INTEGER,
+    $EXPIRY_DATE TEXT,
+    $REMINDER_DATE TEXT,
+    $REMINDER_QTY INTEGER,
+    $QUANTITY INTEGER,
+    $LOADQTY INTEGER ,
+    $FREE INTEGER DEFAULT 0,
+    $UNIT_COST REAL,
+    $PROFIT REAL DEFAULT 0,
+    $TOTAL_COST REAL,
+    $MIN_UNIT_COST REAL,
+    $MAX_UNIT_COST REAL,
+    $MIN_UNIT_SELL_PRICE REAL,
+    $MAX_UNIT_SELL_PRICE REAL,
+    $UNIT_SELL_PRICE REAL,
+    $LOADED_AT TEXT DEFAULT CURRENT_TIMESTAMP,  
+    FOREIGN KEY ($STOCK_ID) REFERENCES stock($ID) ON DELETE CASCADE
   )
 ''';
 
   final String CREATE_USER_TABLE = '''
     CREATE TABLE user (
-      id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-      username TEXT UNIQUE,
-      password TEXT,
-      role TEXT
+      $ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+      $USERNAME TEXT UNIQUE,
+      $PASSWORD TEXT,
+      $ROLE TEXT
     )
   ''';
 
@@ -204,6 +211,8 @@ class DatabaseHelper {
             id: null,
             stockId: 1,
             expiryDate: "2024-12-31",
+            reminderDate: "2024-12-01",
+            reminderQty: 10,
             quantity: 50,
             loadqty: 50,
             free: 5,
@@ -215,11 +224,14 @@ class DatabaseHelper {
             minUnitSellPrice: 1.5,
             maxUnitSellPrice: 2.2,
             unitSellPrice: 2.0,
+            loadedAt: ''
           ),
           StockDetails(
             id: null,
             stockId: 1,
             expiryDate: "2025-01-15",
+            reminderDate: "2024-12-01",
+            reminderQty: 10,
             quantity: 40,
             loadqty: 40,
             free: 4,
@@ -231,11 +243,14 @@ class DatabaseHelper {
             minUnitSellPrice: 1.4,
             maxUnitSellPrice: 2.0,
             unitSellPrice: 1.9,
+            loadedAt: ''
           ),
           StockDetails(
             id: null,
             stockId: 1,
             expiryDate: "2025-03-10",
+            reminderDate: "2024-12-01",
+            reminderQty: 10,
             quantity: 60,
             loadqty: 60,
             free: 6,
@@ -247,6 +262,7 @@ class DatabaseHelper {
             minUnitSellPrice: 1.6,
             maxUnitSellPrice: 2.3,
             unitSellPrice: 2.1,
+            loadedAt: ''
           ),
         ],
       ),
@@ -257,6 +273,8 @@ class DatabaseHelper {
             id: null,
             stockId: 2,
             expiryDate: "2024-11-15",
+            reminderDate: "2024-12-01",
+            reminderQty: 10,
             quantity: 30,
             loadqty: 30,
             free: 3,
@@ -268,11 +286,14 @@ class DatabaseHelper {
             minUnitSellPrice: 0.7,
             maxUnitSellPrice: 1.0,
             unitSellPrice: 0.8,
+              loadedAt: ''
           ),
           StockDetails(
             id: null,
             stockId: 2,
             expiryDate: "2025-01-20",
+            reminderDate: "2024-12-01",
+            reminderQty: 10,
             quantity: 25,
             loadqty: 25,
             free: 2,
@@ -284,11 +305,14 @@ class DatabaseHelper {
             minUnitSellPrice: 0.6,
             maxUnitSellPrice: 0.9,
             unitSellPrice: 0.75,
+              loadedAt: ''
           ),
           StockDetails(
             id: null,
             stockId: 2,
             expiryDate: "2025-02-28",
+            reminderDate: "2024-12-01",
+            reminderQty: 10,
             quantity: 35,
             loadqty: 35,
             free: 4,
@@ -300,6 +324,7 @@ class DatabaseHelper {
             minUnitSellPrice: 0.8,
             maxUnitSellPrice: 1.1,
             unitSellPrice: 0.9,
+              loadedAt: ''
           ),
         ],
       ),
@@ -310,6 +335,8 @@ class DatabaseHelper {
             id: null,
             stockId: 3,
             expiryDate: "2024-10-05",
+            reminderDate: "2024-12-01",
+            reminderQty: 10,
             quantity: 40,
             loadqty: 40,
             free: 4,
@@ -321,11 +348,14 @@ class DatabaseHelper {
             minUnitSellPrice: 1.0,
             maxUnitSellPrice: 1.5,
             unitSellPrice: 1.3,
+              loadedAt: ''
           ),
           StockDetails(
             id: null,
             stockId: 3,
             expiryDate: "2025-01-10",
+            reminderDate: "2024-12-01",
+            reminderQty: 10,
             quantity: 45,
             loadqty: 45,
             free: 5,
@@ -337,11 +367,14 @@ class DatabaseHelper {
             minUnitSellPrice: 1.1,
             maxUnitSellPrice: 1.6,
             unitSellPrice: 1.4,
+              loadedAt: ''
           ),
           StockDetails(
             id: null,
             stockId: 3,
             expiryDate: "2025-02-25",
+            reminderDate: "2024-12-01",
+            reminderQty: 10,
             quantity: 55,
             loadqty: 55,
             free: 6,
@@ -353,6 +386,7 @@ class DatabaseHelper {
             minUnitSellPrice: 1.2,
             maxUnitSellPrice: 1.7,
             unitSellPrice: 1.5,
+              loadedAt: ''
           ),
         ],
       ),

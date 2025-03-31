@@ -3,13 +3,15 @@ import 'package:go_router/go_router.dart';
 import 'package:pharm/pages/bill/billing_page.dart';
 import 'package:pharm/pages/bill/view_bill_page.dart';
 import 'package:pharm/pages/login_screen.dart';
-import 'package:pharm/pages/setting.dart';
+import 'package:pharm/pages/admin_setting.dart';
+import 'package:pharm/pages/not_found.dart';
 import 'package:pharm/pages/stock/add_stock.dart';
 import 'package:pharm/pages/stock/list_stock.dart';
 import 'package:pharm/pages/user/add_user_screen.dart';
 import 'package:pharm/pages/user/user_list_page.dart';
 
 import '../pages/splash.dart';
+import '../pages/stock/update_stock.dart';
 // ignore_for_file: non_constant_identifier_names
 final LOGIN = '/login';
 final ADD_USER = '/add_user';
@@ -19,6 +21,7 @@ final ADD_STOCK = '/add-stock';
 final VIEW_STOCK = '/view-stock';
 final BILLING_PAGE = '/billing-page';
 final VIEW_BILLING_PAGE = '/view-billing-page';
+final NOT_FOUND_PAGE = '/not-found';
 
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -64,6 +67,16 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) =>  BillingPage(),
       ),
       GoRoute(path: VIEW_BILLING_PAGE, builder: (context, state) => const BillTable()),
+      GoRoute(
+        path: '/update-stock/:id',
+        builder: (context, state) {
+          final id = int.parse(state.pathParameters['id']!);
+          return UpdateStockPage(stockDetailsId: id);
+        },
+      ),
+
+      GoRoute(path: NOT_FOUND_PAGE,builder: (context,state)=> const Error404Page()),
+
     ],
   );
 });

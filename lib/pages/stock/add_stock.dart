@@ -10,6 +10,8 @@ import '../../db/model/stock.dart';
 import '../../provider/stock_provider.dart';
 
 class AddStockPage extends ConsumerStatefulWidget {
+  const AddStockPage({super.key});
+
   @override
   ConsumerState<AddStockPage> createState() => _AddStockPageState();
 }
@@ -19,6 +21,8 @@ class _AddStockPageState extends ConsumerState<AddStockPage> {
   final TextEditingController barcodeController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController expiryDateController = TextEditingController();
+  final TextEditingController reminderDateController = TextEditingController();
+  final TextEditingController reminderQtyController = TextEditingController();
   final TextEditingController quantityController = TextEditingController();
   final TextEditingController freeController = TextEditingController();
   final TextEditingController unitCostController = TextEditingController();
@@ -109,7 +113,7 @@ class _AddStockPageState extends ConsumerState<AddStockPage> {
     nameController.text = stock.name;
   }
 
-  void _selectExpiryDate(BuildContext context) async {
+  void _selectExpiryDate(BuildContext context,bool isExpire) async {
     DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -119,7 +123,11 @@ class _AddStockPageState extends ConsumerState<AddStockPage> {
 
     if (picked != null) {
       setState(() {
-        expiryDateController.text = DateFormat('yyyy-MM-dd').format(picked);
+       if(isExpire) {
+         expiryDateController.text = DateFormat('yyyy-MM-dd').format(picked);
+       }else{
+         reminderDateController.text = DateFormat('yyyy-MM-dd').format(picked);
+       }
       });
     }
   }
@@ -156,6 +164,8 @@ class _AddStockPageState extends ConsumerState<AddStockPage> {
     StockDetails stockDetails = StockDetails(
       expiryDate: expiryDateController.text.trim(),
       quantity: int.tryParse(quantityController.text) ?? 0,
+      reminderDate: reminderDateController.text.trim(),
+      reminderQty: int.tryParse(reminderQtyController.text) ?? 0,
       loadqty: int.tryParse(quantityController.text) ?? 0,
       free: int.tryParse(freeController.text) ?? 0,
       unitCost: double.tryParse(unitCostController.text) ?? 0.0,
@@ -166,6 +176,7 @@ class _AddStockPageState extends ConsumerState<AddStockPage> {
       minUnitSellPrice: double.tryParse(minUnitSellPriceController.text) ?? 0.0,
       maxUnitSellPrice: double.tryParse(maxUnitSellPriceController.text) ?? 0.0,
       unitSellPrice: double.tryParse(unitSellPriceController.text) ?? 0.0,
+      loadedAt: DateTime.now().toString(),
       id: null,
       stockId: currentStock!.id,
     );
@@ -276,16 +287,16 @@ class _AddStockPageState extends ConsumerState<AddStockPage> {
     );
   }
 
-  Widget _buildDateField(BuildContext context) {
+  Widget _buildDateField(BuildContext context, String lable, TextEditingController controller, bool isExpire) {
     return TextFormField(
-      controller: expiryDateController,
+      controller: controller,
       readOnly: true,
       decoration: InputDecoration(
-        labelText: 'Expiry Date',
+        labelText: lable,
         border: OutlineInputBorder(),
         suffixIcon: IconButton(
           icon: Icon(Icons.calendar_today),
-          onPressed: () => _selectExpiryDate(context),
+          onPressed: () => _selectExpiryDate(context,isExpire),
         ),
       ),
     );
@@ -406,7 +417,16 @@ class _AddStockPageState extends ConsumerState<AddStockPage> {
 
         Row(
           children: [
-            Expanded(child: _buildDateField(context)),
+            Expanded(child: _buildDateField(context, 'Expiry Date', expiryDateController,true)),
+            SizedBox(width: 16),
+            Expanded(child: _buildDateField(context, 'Reminder Date', reminderDateController,false)),
+            SizedBox(width: 16),
+            Expanded(
+              child: _buildNumberField(
+                reminderQtyController,
+                'Reminder Quantity',
+              ),
+            ),
             SizedBox(width: 16),
             Expanded(
               child: _buildNumberField(
@@ -424,6 +444,7 @@ class _AddStockPageState extends ConsumerState<AddStockPage> {
           ],
         ),
         SizedBox(height: 16),
+        SizedBox(height: 16),
         buildElevatedButton(
           label: 'Add Stock Details',
           onPressed: _addStockDetails,
@@ -431,4 +452,5 @@ class _AddStockPageState extends ConsumerState<AddStockPage> {
       ],
     );
   }
+
 }
