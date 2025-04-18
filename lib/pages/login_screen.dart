@@ -56,8 +56,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    _usernameController.text = '1010';
-    _passwordController.text = '1234';
 
     return Scaffold(
       backgroundColor: Colors.grey[200],
@@ -160,7 +158,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ),
                   ),
                   const Text(
-                    'V.1.0.0',
+                    'V.1.5.0',
                     style: TextStyle(color: Colors.grey, fontSize: 12),
                   ),
                   SizedBox(height: 6),

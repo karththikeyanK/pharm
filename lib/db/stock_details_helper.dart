@@ -36,7 +36,7 @@ class StockDetailHelper{
 
   Future<List<StockDetails>> getStockDetailsByStockId(int stockId) async {
     final db = await DatabaseHelper.instance.database;
-    final List<Map<String, dynamic>> maps = await db.query('stock_detail', where: 'stock_id = ? AND quantity > 0', whereArgs: [stockId]);
+    final List<Map<String, dynamic>> maps = await db.query('stock_detail', where: 'stock_id = ?', whereArgs: [stockId]);
     return List.generate(maps.length, (i) => StockDetails.fromMap(maps[i]));
   }
 

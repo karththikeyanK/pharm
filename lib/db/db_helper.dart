@@ -15,7 +15,7 @@ class DatabaseHelper {
 
   DatabaseHelper._init();
 
-  static const int _databaseVersion = 27;
+  static const int _databaseVersion = 30;
 
   static const String STOCK_TABLE = 'stock';
   static const String STOCK_DETAIL_TABLE = 'stock_detail';
@@ -162,23 +162,22 @@ class DatabaseHelper {
 
 
   Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
-   if(oldVersion<newVersion){
-     await db.execute('PRAGMA foreign_keys = ON');
-     await db.execute('DROP TABLE IF EXISTS $STOCK_TABLE');
-     await db.execute('DROP TABLE IF EXISTS $STOCK_DETAIL_TABLE');
-     await db.execute('DROP TABLE IF EXISTS $USER_TABLE');
-     await db.execute('DROP TABLE IF EXISTS $BILL_TABLE');
-     await db.execute('DROP TABLE IF EXISTS $BILL_ITEM_TABLE');
-
-     await db.execute(CREATE_USER_TABLE);
-     await db.execute(CREATE_STOCK);
-     await db.execute(CREATE_STOCK_DETAIL);
-     await db.execute(CREATE_BILL_TABLE);
-     await db.execute(CREATE_BILL_ITEMS);
-
-     await insertUser(db);
-     await _insertInitialStock(db);
-   }
+   // if(oldVersion<newVersion){
+   //   await db.execute('PRAGMA foreign_keys = ON');
+   //   await db.execute('DROP TABLE IF EXISTS $STOCK_TABLE');
+   //   await db.execute('DROP TABLE IF EXISTS $STOCK_DETAIL_TABLE');
+   //   await db.execute('DROP TABLE IF EXISTS $USER_TABLE');
+   //   await db.execute('DROP TABLE IF EXISTS $BILL_TABLE');
+   //   await db.execute('DROP TABLE IF EXISTS $BILL_ITEM_TABLE');
+   //
+   //   await db.execute(CREATE_USER_TABLE);
+   //   await db.execute(CREATE_STOCK);
+   //   await db.execute(CREATE_STOCK_DETAIL);
+   //   await db.execute(CREATE_BILL_TABLE);
+   //   await db.execute(CREATE_BILL_ITEMS);
+   //
+   //   await insertUser(db);
+   // }
   }
 
   Future<void> insertUser(Database db) async {
